@@ -335,9 +335,9 @@ fn twilight_adjustments(
     daytime: AdjustmentDaytime,
     latitude: f64,
     dyy: f64,
-    shafaq: Twilight,
+    twilight: Twilight,
 ) -> f64 {
-    let adjustment_values = twilight_adjustment_values(daytime, latitude, shafaq);
+    let adjustment_values = twilight_adjustment_values(daytime, latitude, twilight);
 
     if (0.00..=90.0).contains(&dyy) {
         adjustment_values.a + (adjustment_values.b - adjustment_values.a) / 91.0 * dyy
@@ -371,7 +371,7 @@ struct TwilightAdjustmentValues {
 fn twilight_adjustment_values(
     daytime: AdjustmentDaytime,
     latitude: f64,
-    shafaq: Twilight,
+    twilight: Twilight,
 ) -> TwilightAdjustmentValues {
     if daytime == AdjustmentDaytime::Morning {
         TwilightAdjustmentValues {
@@ -381,7 +381,7 @@ fn twilight_adjustment_values(
             d: 75.0 + ((48.10 / 55.0) * latitude.abs()),
         }
     } else {
-        match shafaq {
+        match twilight {
             Twilight::General => TwilightAdjustmentValues {
                 a: 75.0 + ((25.60 / 55.0) * latitude.abs()),
                 b: 75.0 + ((2.050 / 55.0) * latitude.abs()),
@@ -411,10 +411,10 @@ pub fn season_adjusted_evening_twilight(
     day: u32,
     year: u32,
     sunset: DateTime<Utc>,
-    shafaq: Twilight,
+    twilight: Twilight,
 ) -> DateTime<Utc> {
     let dyy = days_since_solstice(day, year, latitude) as f64;
-    let adjustment = twilight_adjustments(AdjustmentDaytime::Evening, latitude, dyy, shafaq);
+    let adjustment = twilight_adjustments(AdjustmentDaytime::Evening, latitude, dyy, twilight);
 
     let rounded_adjustment = (adjustment * 60.0).round() as i64;
     let adjusted_date = sunset

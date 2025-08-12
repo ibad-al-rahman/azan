@@ -247,7 +247,7 @@ impl PrayerTimes {
                     day_of_year,
                     prayer_date.year() as u32,
                     solar_time.sunset,
-                    parameters.shafaq,
+                    parameters.twilight,
                 )
             } else {
                 let portion = parameters.night_portions().1;
@@ -351,8 +351,8 @@ impl PrayerSchedule {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::models::mazhab::Mazhab;
     use crate::Configuration;
+    use crate::models::mazhab::Mazhab;
     use chrono::{NaiveDate, TimeZone, Utc};
 
     #[test]

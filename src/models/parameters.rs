@@ -23,7 +23,7 @@ pub struct Parameters {
     pub adjustments: TimeAdjustment,
     pub method_adjustments: TimeAdjustment,
     pub rounding: Rounding,
-    pub shafaq: Twilight,
+    pub twilight: Twilight,
 }
 
 impl Parameters {
@@ -39,7 +39,7 @@ impl Parameters {
             adjustments: TimeAdjustment::default(),
             method_adjustments: TimeAdjustment::default(),
             rounding: Rounding::Nearest,
-            shafaq: Twilight::General,
+            twilight: Twilight::General,
         }
     }
 
@@ -79,7 +79,7 @@ pub struct Configuration {
     adjustments: TimeAdjustment,
     method_adjustments: TimeAdjustment,
     rounding: Rounding,
-    shafaq: Twilight,
+    twilight: Twilight,
 }
 
 impl Configuration {
@@ -95,7 +95,7 @@ impl Configuration {
             adjustments: TimeAdjustment::default(),
             method_adjustments: TimeAdjustment::default(),
             rounding: Rounding::Nearest,
-            shafaq: Twilight::General,
+            twilight: Twilight::General,
         }
     }
 
@@ -148,8 +148,8 @@ impl Configuration {
         self
     }
 
-    pub fn shafaq<'a>(&'a mut self, value: Twilight) -> &'a mut Configuration {
-        self.shafaq = value;
+    pub fn twilight<'a>(&'a mut self, value: Twilight) -> &'a mut Configuration {
+        self.twilight = value;
         self
     }
 
@@ -165,7 +165,7 @@ impl Configuration {
             adjustments: self.adjustments,
             method_adjustments: self.method_adjustments,
             rounding: self.rounding,
-            shafaq: self.shafaq,
+            twilight: self.twilight,
         }
     }
 }
