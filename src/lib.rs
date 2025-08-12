@@ -103,7 +103,7 @@ mod tests {
             "12:32 AM"
         );
         assert_eq!(
-            schedule.time(Prayer::Isha).format("%-l:%M %p").to_string(),
+            schedule.time(Prayer::Ishaa).format("%-l:%M %p").to_string(),
             "1:57 AM"
         );
     }
@@ -148,7 +148,7 @@ mod tests {
                     "12:32 AM"
                 );
                 assert_eq!(
-                    schedule.time(Prayer::Isha).format("%-l:%M %p").to_string(),
+                    schedule.time(Prayer::Ishaa).format("%-l:%M %p").to_string(),
                     "1:57 AM"
                 );
             }
@@ -226,7 +226,7 @@ mod tests {
                 let sgt_dhuhr = schedule.time(Prayer::Dhuhr).with_timezone(&sgt_offset);
                 let sgt_asr = schedule.time(Prayer::Asr).with_timezone(&sgt_offset);
                 let sgt_maghrib = schedule.time(Prayer::Maghrib).with_timezone(&sgt_offset);
-                let sgt_isha = schedule.time(Prayer::Isha).with_timezone(&sgt_offset);
+                let sgt_isha = schedule.time(Prayer::Ishaa).with_timezone(&sgt_offset);
 
                 assert_eq!(sgt_fajr.format("%-l:%M %p").to_string(), "5:50 AM");
                 assert_eq!(sgt_sunrise.format("%-l:%M %p").to_string(), "7:13 AM");
@@ -249,7 +249,7 @@ mod tests {
         // use of time adjustment.
         //
         // It would be a good idea to get some more information on how the Fajr
-        // and Isha are calculated, since that's where the biggest variance is;
+        // and Ishaa are calculated, since that's where the biggest variance is;
         // however, the other times are within the 2 minute variance.
         params.method_adjustments = Adjustment::new()
             .fajr(-10)
@@ -257,7 +257,7 @@ mod tests {
             .dhuhr(2)
             .asr(1)
             .maghrib(2)
-            .isha(4)
+            .ishaa(4)
             .done();
 
         let result = PrayerSchedule::new()
@@ -275,7 +275,7 @@ mod tests {
                 let wib_dhuhr = schedule.time(Prayer::Dhuhr).with_timezone(&wib_offset);
                 let wib_asr = schedule.time(Prayer::Asr).with_timezone(&wib_offset);
                 let wib_maghrib = schedule.time(Prayer::Maghrib).with_timezone(&wib_offset);
-                let wib_isha = schedule.time(Prayer::Isha).with_timezone(&wib_offset);
+                let wib_isha = schedule.time(Prayer::Ishaa).with_timezone(&wib_offset);
 
                 assert_eq!(wib_fajr.format("%-l:%M %p").to_string(), "4:15 AM");
                 assert_eq!(wib_sunrise.format("%-l:%M %p").to_string(), "5:45 AM");

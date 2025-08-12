@@ -67,7 +67,7 @@ impl<Tz: TimeZone> Stride for DateTime<Tz> {
                     adjusted + Duration::seconds(adjusted_seconds * -1)
                 }
             }
-            Rounding::Up => {
+            Rounding::Ceil => {
                 let adjusted_seconds = seconds as i64;
 
                 adjusted + Duration::seconds(60 - adjusted_seconds)
@@ -311,7 +311,7 @@ mod tests {
             .expect("Invalid date and time.");
 
         assert_eq!(
-            time_1.rounded_minute(Rounding::Up),
+            time_1.rounded_minute(Rounding::Ceil),
             Utc.with_ymd_and_hms(2015, 7, 13, 6, 00, 00)
                 .single()
                 .unwrap()

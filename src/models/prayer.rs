@@ -11,7 +11,7 @@ pub enum Prayer {
     Dhuhr,
     Asr,
     Maghrib,
-    Isha,
+    Ishaa,
     Qiyam,
     FajrTomorrow,
 }
@@ -30,7 +30,7 @@ impl Prayer {
             }
             Prayer::Asr => String::from("Asr"),
             Prayer::Maghrib => String::from("Maghrib"),
-            Prayer::Isha => String::from("Isha"),
+            Prayer::Ishaa => String::from("Ishaa"),
             Prayer::Qiyam => String::from("Qiyam"),
         }
     }
@@ -53,7 +53,7 @@ mod tests {
 
         assert_eq!(Prayer::Asr.name(), "Asr");
         assert_eq!(Prayer::Maghrib.name(), "Maghrib");
-        assert_eq!(Prayer::Isha.name(), "Isha");
+        assert_eq!(Prayer::Ishaa.name(), "Ishaa");
         assert_eq!(Prayer::Qiyam.name(), "Qiyam");
     }
 }

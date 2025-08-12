@@ -3,38 +3,25 @@ use std::default::Default;
 /// Time adjustment for all prayer times.
 /// The value is specified in *minutes* and
 /// can be either positive or negative.
-#[derive(PartialEq, Debug, Copy, Clone)]
+#[derive(PartialEq, Debug, Copy, Clone, Default)]
 pub struct TimeAdjustment {
     pub fajr: i64,
     pub sunrise: i64,
     pub dhuhr: i64,
     pub asr: i64,
     pub maghrib: i64,
-    pub isha: i64,
+    pub ishaa: i64,
 }
 
 impl TimeAdjustment {
-    pub fn new(fajr: i64, sunrise: i64, dhuhr: i64, asr: i64, maghrib: i64, isha: i64) -> Self {
+    pub fn new(fajr: i64, sunrise: i64, dhuhr: i64, asr: i64, maghrib: i64, ishaa: i64) -> Self {
         TimeAdjustment {
             fajr: fajr,
             sunrise: sunrise,
             dhuhr: dhuhr,
             asr: asr,
             maghrib: maghrib,
-            isha: isha,
-        }
-    }
-}
-
-impl Default for TimeAdjustment {
-    fn default() -> TimeAdjustment {
-        TimeAdjustment {
-            fajr: 0,
-            sunrise: 0,
-            dhuhr: 0,
-            asr: 0,
-            maghrib: 0,
-            isha: 0,
+            ishaa: ishaa,
         }
     }
 }
@@ -47,7 +34,7 @@ pub struct Adjustment {
     dhuhr: i64,
     asr: i64,
     maghrib: i64,
-    isha: i64,
+    ishaa: i64,
 }
 
 impl Adjustment {
@@ -58,7 +45,7 @@ impl Adjustment {
             dhuhr: 0,
             asr: 0,
             maghrib: 0,
-            isha: 0,
+            ishaa: 0,
         }
     }
 
@@ -87,8 +74,8 @@ impl Adjustment {
         self
     }
 
-    pub fn isha<'a>(&'a mut self, isha: i64) -> &'a mut Adjustment {
-        self.isha = isha;
+    pub fn ishaa<'a>(&'a mut self, ishaa: i64) -> &'a mut Adjustment {
+        self.ishaa = ishaa;
         self
     }
 
@@ -99,7 +86,7 @@ impl Adjustment {
             dhuhr: self.dhuhr,
             asr: self.asr,
             maghrib: self.maghrib,
-            isha: self.isha,
+            ishaa: self.ishaa,
         }
     }
 }

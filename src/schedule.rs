@@ -23,7 +23,7 @@ pub struct PrayerTimes {
     dhuhr: DateTime<Utc>,
     asr: DateTime<Utc>,
     maghrib: DateTime<Utc>,
-    isha: DateTime<Utc>,
+    ishaa: DateTime<Utc>,
     middle_of_the_night: DateTime<Utc>,
     qiyam: DateTime<Utc>,
     fajr_tomorrow: DateTime<Utc>,
@@ -86,7 +86,7 @@ impl PrayerTimes {
             dhuhr: final_dhuhr,
             asr: final_asr,
             maghrib: final_maghrib,
-            isha: final_isha,
+            ishaa: final_isha,
             middle_of_the_night: final_middle_of_night,
             qiyam: final_qiyam,
             fajr_tomorrow: final_fajr_tomorrow,
@@ -103,7 +103,7 @@ impl PrayerTimes {
             Prayer::Dhuhr => self.dhuhr,
             Prayer::Asr => self.asr,
             Prayer::Maghrib => self.maghrib,
-            Prayer::Isha => self.isha,
+            Prayer::Ishaa => self.ishaa,
             Prayer::Qiyam => self.qiyam,
             Prayer::FajrTomorrow => self.fajr_tomorrow,
         }
@@ -119,8 +119,8 @@ impl PrayerTimes {
             Prayer::Sunrise => Prayer::Dhuhr,
             Prayer::Dhuhr => Prayer::Asr,
             Prayer::Asr => Prayer::Maghrib,
-            Prayer::Maghrib => Prayer::Isha,
-            Prayer::Isha => Prayer::Qiyam,
+            Prayer::Maghrib => Prayer::Ishaa,
+            Prayer::Ishaa => Prayer::Qiyam,
             Prayer::Qiyam => Prayer::FajrTomorrow,
             _ => Prayer::FajrTomorrow,
         }
@@ -145,8 +145,8 @@ impl PrayerTimes {
             current_prayer = Some(Prayer::FajrTomorrow)
         } else if self.qiyam.signed_duration_since(time).num_seconds() <= 0 {
             current_prayer = Some(Prayer::Qiyam)
-        } else if self.isha.signed_duration_since(time).num_seconds() <= 0 {
-            current_prayer = Some(Prayer::Isha);
+        } else if self.ishaa.signed_duration_since(time).num_seconds() <= 0 {
+            current_prayer = Some(Prayer::Ishaa);
         } else if self.maghrib.signed_duration_since(time).num_seconds() <= 0 {
             current_prayer = Some(Prayer::Maghrib);
         } else if self.asr.signed_duration_since(time).num_seconds() <= 0 {
@@ -218,20 +218,20 @@ impl PrayerTimes {
         coordinates: Coordinates,
         prayer_date: DateTime<Utc>,
     ) -> DateTime<Utc> {
-        let mut isha: DateTime<Utc>;
+        let mut ishaa: DateTime<Utc>;
 
         if parameters.isha_interval > 0 {
-            isha = solar_time
+            ishaa = solar_time
                 .sunset
                 .checked_add_signed(Duration::seconds((parameters.isha_interval * 60) as i64))
                 .unwrap();
         } else {
-            isha = solar_time.time_for_solar_angle(Angle::new(-parameters.isha_angle), true);
+            ishaa = solar_time.time_for_solar_angle(Angle::new(-parameters.isha_angle), true);
 
             // special case for moonsighting committee above latitude 55
             if parameters.method == Method::MoonsightingCommittee && coordinates.latitude >= 55.0 {
                 let night_fraction = night.num_seconds() / 7;
-                isha = solar_time
+                ishaa = solar_time
                     .sunset
                     .checked_add_signed(Duration::seconds(night_fraction))
                     .unwrap();
@@ -259,14 +259,14 @@ impl PrayerTimes {
                     .unwrap()
             };
 
-            if isha > safe_isha {
-                isha = safe_isha;
+            if ishaa > safe_isha {
+                ishaa = safe_isha;
             } else {
                 // Nothing to do.
             }
         }
 
-        isha.adjust_time(parameters.time_adjustments(Prayer::Isha))
+        ishaa.adjust_time(parameters.time_adjustments(Prayer::Ishaa))
     }
 
     fn calculate_qiyam(
@@ -422,15 +422,15 @@ mod tests {
     }
 
     #[test]
-    fn current_prayer_should_be_isha() {
-        // Given the below DateTime, isha is at 2015-07-13T01:57:00Z
+    fn current_prayer_should_be_ishaa() {
+        // Given the below DateTime, ishaa is at 2015-07-13T01:57:00Z
         let local_date = NaiveDate::from_ymd_opt(2015, 7, 12).expect("Invalid date provided");
         let params = Configuration::with(Method::NorthAmerica, Mazhab::Hanafi);
         let coordinates = Coordinates::new(35.7750, -78.6336);
         let times = PrayerTimes::new(local_date, coordinates, params);
         let current_prayer_time = Utc.with_ymd_and_hms(2015, 7, 13, 02, 0, 0).unwrap();
 
-        assert_eq!(times.current_time(current_prayer_time), Some(Prayer::Isha));
+        assert_eq!(times.current_time(current_prayer_time), Some(Prayer::Ishaa));
     }
 
     #[test]
@@ -462,7 +462,7 @@ mod tests {
                 // dhuhr   = 2016-01-31 17:33:00 UTC
                 // asr     = 2016-01-31 20:20:00 UTC
                 // maghrib = 2016-01-31 22:43:00 UTC
-                // isha    = 2016-02-01 00:05:00 UTC
+                // ishaa    = 2016-02-01 00:05:00 UTC
                 assert_eq!(
                     schedule.time(Prayer::Fajr).format("%-l:%M %p").to_string(),
                     "10:48 AM"
@@ -490,7 +490,7 @@ mod tests {
                     "10:43 PM"
                 );
                 assert_eq!(
-                    schedule.time(Prayer::Isha).format("%-l:%M %p").to_string(),
+                    schedule.time(Prayer::Ishaa).format("%-l:%M %p").to_string(),
                     "12:05 AM"
                 );
             }
@@ -517,7 +517,7 @@ mod tests {
                 // dhuhr   = 2016-01-01 11:25:00 UTC
                 // asr     = 2016-01-01 12:36:00 UTC
                 // maghrib = 2016-01-01 14:25:00 UTC
-                // isha    = 2016-01-01 16:02:00 UTC
+                // ishaa    = 2016-01-01 16:02:00 UTC
                 assert_eq!(
                     schedule.time(Prayer::Fajr).format("%-l:%M %p").to_string(),
                     "6:34 AM"
@@ -545,7 +545,7 @@ mod tests {
                     "2:25 PM"
                 );
                 assert_eq!(
-                    schedule.time(Prayer::Isha).format("%-l:%M %p").to_string(),
+                    schedule.time(Prayer::Ishaa).format("%-l:%M %p").to_string(),
                     "4:02 PM"
                 );
             }

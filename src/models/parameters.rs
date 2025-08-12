@@ -58,7 +58,7 @@ impl Parameters {
             Prayer::Dhuhr => self.adjustments.dhuhr + self.method_adjustments.dhuhr,
             Prayer::Asr => self.adjustments.asr + self.method_adjustments.asr,
             Prayer::Maghrib => self.adjustments.maghrib + self.method_adjustments.maghrib,
-            Prayer::Isha => self.adjustments.isha + self.method_adjustments.isha,
+            Prayer::Ishaa => self.adjustments.ishaa + self.method_adjustments.ishaa,
             _ => 0,
         }
     }

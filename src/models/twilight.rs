@@ -1,6 +1,6 @@
 /// Shafaq is the twilight in the sky. Different madhabs define the appearance of
 /// twilight differently. These values are used by the MoonsightingComittee method
-/// for the different ways to calculate Isha.
+/// for the different ways to calculate Ishaa.
 #[derive(PartialEq, Debug, Copy, Clone)]
 pub enum Twilight {
     /// General is a combination of Ahmer and Abyad.
