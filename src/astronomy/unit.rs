@@ -1,15 +1,15 @@
-// Salah
-//
-// See LICENSE for more details.
-// Copyright (c) 2019-2022 Farhan Ahmed. All rights reserved.
-//
-
-use std::f64::consts::PI;
-use std::ops::{Add, Div, Mul, Sub};
-
 use crate::astronomy::ops;
 use crate::models::rounding::Rounding;
-use chrono::{DateTime, Datelike, Duration, TimeZone, Timelike};
+use chrono::DateTime;
+use chrono::Datelike;
+use chrono::Duration;
+use chrono::TimeZone;
+use chrono::Timelike;
+use std::f64::consts::PI;
+use std::ops::Add;
+use std::ops::Div;
+use std::ops::Mul;
+use std::ops::Sub;
 
 pub trait Normalize {
     fn normalized_to_scale(&self, max: f64) -> f64;

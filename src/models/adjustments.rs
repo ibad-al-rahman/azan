@@ -1,9 +1,3 @@
-// Salah
-//
-// See LICENSE for more details.
-// Copyright (c) 2019-2022 Farhan Ahmed. All rights reserved.
-//
-
 use std::default::Default;
 
 /// Time adjustment for all prayer times.

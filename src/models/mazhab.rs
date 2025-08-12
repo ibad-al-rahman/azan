@@ -1,21 +1,18 @@
-// Salah
-//
-// See LICENSE for more details.
-// Copyright (c) 2019-2022 Farhan Ahmed. All rights reserved.
-//
-
 /// Setting for the Asr prayer time.
 /// For Hanafi madhab, the Asr is bit later
 /// than that of the Shafi madhab.
 #[derive(PartialEq, Debug, Copy, Clone)]
-pub enum Madhab {
-    Shafi = 1,
-    Hanafi = 2,
+pub enum Mazhab {
+    Shafi,
+    Hanafi,
 }
 
-impl Madhab {
+impl Mazhab {
     pub fn shadow(&self) -> i32 {
-        *self as i32
+        match self {
+            Mazhab::Shafi => 1,
+            Mazhab::Hanafi => 2,
+        }
     }
 }
 
@@ -25,14 +22,14 @@ mod tests {
 
     #[test]
     fn shafi_shadow() {
-        let shafi = Madhab::Shafi;
+        let shafi = Mazhab::Shafi;
 
         assert_eq!(shafi.shadow(), 1);
     }
 
     #[test]
     fn hanafi_shadow() {
-        let hanafi = Madhab::Hanafi;
+        let hanafi = Mazhab::Hanafi;
 
         assert_eq!(hanafi.shadow(), 2);
     }

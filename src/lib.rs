@@ -1,9 +1,3 @@
-// Salah
-//
-// See LICENSE for more details.
-// Copyright (c) 2019-2022 Farhan Ahmed. All rights reserved.
-//
-
 //! An Islamic prayer time implementation based on the [Adhan](https://github.com/batoulapps/Adhan) library by Batoul Apps.
 //! While it has a lot of commnalities with the interface has
 //! been changed slightly to make it more ergonomic and intuitive.
@@ -27,14 +21,25 @@ mod astronomy;
 mod models;
 mod schedule;
 
-pub use crate::astronomy::unit::{Coordinates, Stride};
-pub use crate::models::adjustments::{Adjustment, TimeAdjustment};
-pub use crate::models::madhab::Madhab;
+pub use crate::astronomy::unit::Coordinates;
+pub use crate::astronomy::unit::Stride;
+pub use crate::models::adjustments::Adjustment;
+pub use crate::models::adjustments::TimeAdjustment;
+pub use crate::models::mazhab::Mazhab;
 pub use crate::models::method::Method;
-pub use crate::models::parameters::{Configuration, Parameters};
+pub use crate::models::parameters::Configuration;
+pub use crate::models::parameters::Parameters;
 pub use crate::models::prayer::Prayer;
-pub use crate::schedule::{PrayerSchedule, PrayerTimes};
-pub use chrono::{DateTime, Datelike, Duration, Local, NaiveDate, TimeZone, Timelike, Utc};
+pub use crate::schedule::PrayerSchedule;
+pub use crate::schedule::PrayerTimes;
+pub use chrono::DateTime;
+pub use chrono::Datelike;
+pub use chrono::Duration;
+pub use chrono::Local;
+pub use chrono::NaiveDate;
+pub use chrono::TimeZone;
+pub use chrono::Timelike;
+pub use chrono::Utc;
 
 /// A convenience module appropriate for glob imports (`use salah::prelude::*;`).
 pub mod prelude {
@@ -45,7 +50,7 @@ pub mod prelude {
     #[doc(no_inline)]
     pub use crate::models::adjustments::{Adjustment, TimeAdjustment};
     #[doc(no_inline)]
-    pub use crate::models::madhab::Madhab;
+    pub use crate::models::mazhab::Mazhab;
     #[doc(no_inline)]
     pub use crate::models::method::Method;
     #[doc(no_inline)]
@@ -67,7 +72,7 @@ mod tests {
     #[test]
     fn calculate_prayer_times() {
         let local_date = NaiveDate::from_ymd_opt(2015, 7, 12).expect("Invalid date provided");
-        let params = Configuration::with(Method::NorthAmerica, Madhab::Hanafi);
+        let params = Configuration::with(Method::NorthAmerica, Mazhab::Hanafi);
         let coordinates = Coordinates::new(35.7750, -78.6336);
         let schedule = PrayerTimes::new(local_date, coordinates, params);
 
@@ -106,7 +111,7 @@ mod tests {
     #[test]
     fn calculate_times_using_the_builder_successfully() {
         let date = NaiveDate::from_ymd_opt(2015, 7, 12).expect("Invalid date provided");
-        let params = Configuration::with(Method::NorthAmerica, Madhab::Hanafi);
+        let params = Configuration::with(Method::NorthAmerica, Mazhab::Hanafi);
         let coordinates = Coordinates::new(35.7750, -78.6336);
         let result = PrayerSchedule::new()
             .on(date)
@@ -155,7 +160,7 @@ mod tests {
     #[test]
     fn calculate_times_using_the_builder_failure() {
         let date = NaiveDate::from_ymd_opt(2015, 7, 12).expect("Invalid date provided");
-        let params = Configuration::with(Method::NorthAmerica, Madhab::Hanafi);
+        let params = Configuration::with(Method::NorthAmerica, Mazhab::Hanafi);
         let result = PrayerSchedule::new()
             .on(date)
             .with_configuration(params)
@@ -170,7 +175,7 @@ mod tests {
     #[test]
     fn calculate_qiyam_times() {
         let date = NaiveDate::from_ymd_opt(2015, 7, 12).expect("Invalid date provided");
-        let params = Configuration::with(Method::NorthAmerica, Madhab::Hanafi);
+        let params = Configuration::with(Method::NorthAmerica, Mazhab::Hanafi);
         let coordinates = Coordinates::new(35.7750, -78.6336);
         let result = PrayerSchedule::new()
             .on(date)
@@ -202,7 +207,7 @@ mod tests {
 
     #[test]
     fn calculate_times_for_singapore() {
-        let mut params = Configuration::with(Method::Singapore, Madhab::Shafi);
+        let mut params = Configuration::with(Method::Singapore, Mazhab::Shafi);
 
         params.high_latitude_rule = HighLatitudeRule::MiddleOfTheNight;
 
@@ -236,7 +241,7 @@ mod tests {
 
     #[test]
     fn calculate_times_for_jakarta() {
-        let mut params = Configuration::with(Method::Egyptian, Madhab::Shafi);
+        let mut params = Configuration::with(Method::Egyptian, Mazhab::Shafi);
 
         // The adjustment below are based on the prayer times that are provided
         // on the website (https://www.jadwalsholat.org/). I don't know the exact
@@ -287,7 +292,7 @@ mod tests {
     fn calculate_time_for_kuala_lumpur() {
         let location = Coordinates::new(3.12, 101.69);
         let date = NaiveDate::from_ymd_opt(2024, 4, 9).expect("Invalid date provided");
-        let params = Configuration::with(Method::MuslimWorldLeague, Madhab::Shafi);
+        let params = Configuration::with(Method::MuslimWorldLeague, Mazhab::Shafi);
         let result = PrayerSchedule::new()
             .on(date)
             .for_location(location)

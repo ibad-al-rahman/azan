@@ -1,15 +1,7 @@
-// Salah
-//
-// See LICENSE for more details.
-// Copyright (c) 2019-2022 Farhan Ahmed. All rights reserved.
-//
-
 //! # Prayer Schedule
 //!
 //! This module provides the main objects that are used for calculating
 //! the prayer times.
-
-use chrono::{DateTime, Datelike, Duration, NaiveDate, Utc};
 
 use crate::astronomy::ops;
 use crate::astronomy::solar::SolarTime;
@@ -18,6 +10,11 @@ use crate::models::method::Method;
 use crate::models::parameters::Parameters;
 use crate::models::prayer::Prayer;
 use crate::models::rounding::Rounding;
+use chrono::DateTime;
+use chrono::Datelike;
+use chrono::Duration;
+use chrono::NaiveDate;
+use chrono::Utc;
 
 /// A data struct to hold the timing for all
 /// prayers.
@@ -356,7 +353,7 @@ impl PrayerSchedule {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::models::madhab::Madhab;
+    use crate::models::mazhab::Mazhab;
     use crate::Configuration;
     use chrono::{NaiveDate, TimeZone, Utc};
 
@@ -364,7 +361,7 @@ mod tests {
     fn current_prayer_should_be_fajr() {
         // Given the above DateTime, the Fajr prayer is at 2015-07-12T08:42:00Z
         let local_date = NaiveDate::from_ymd_opt(2015, 7, 12).expect("Invalid date provided");
-        let params = Configuration::with(Method::NorthAmerica, Madhab::Hanafi);
+        let params = Configuration::with(Method::NorthAmerica, Mazhab::Hanafi);
         let coordinates = Coordinates::new(35.7750, -78.6336);
         let times = PrayerTimes::new(local_date, coordinates, params);
         let current_prayer_time = local_date.and_hms_opt(9, 0, 0).unwrap().and_utc();
@@ -376,7 +373,7 @@ mod tests {
     fn current_prayer_should_be_sunrise() {
         // Given the below DateTime, sunrise is at 2015-07-12T10:08:00Z
         let local_date = NaiveDate::from_ymd_opt(2015, 7, 12).expect("Invalid date provided");
-        let params = Configuration::with(Method::NorthAmerica, Madhab::Hanafi);
+        let params = Configuration::with(Method::NorthAmerica, Mazhab::Hanafi);
         let coordinates = Coordinates::new(35.7750, -78.6336);
         let times = PrayerTimes::new(local_date, coordinates, params);
         let current_prayer_time = local_date.and_hms_opt(11, 0, 0).unwrap().and_utc();
@@ -391,7 +388,7 @@ mod tests {
     fn current_prayer_should_be_dhuhr() {
         // Given the above DateTime, dhuhr prayer is at 2015-07-12T17:21:00Z
         let local_date = NaiveDate::from_ymd_opt(2015, 7, 12).expect("Invalid date provided");
-        let params = Configuration::with(Method::NorthAmerica, Madhab::Hanafi);
+        let params = Configuration::with(Method::NorthAmerica, Mazhab::Hanafi);
         let coordinates = Coordinates::new(35.7750, -78.6336);
         let times = PrayerTimes::new(local_date, coordinates, params);
         let current_prayer_time = local_date.and_hms_opt(19, 0, 0).unwrap().and_utc();
@@ -403,7 +400,7 @@ mod tests {
     fn current_prayer_should_be_asr() {
         // Given the below DateTime, asr is at 2015-07-12T22:22:00Z
         let local_date = NaiveDate::from_ymd_opt(2015, 7, 12).expect("Invalid date provided");
-        let params = Configuration::with(Method::NorthAmerica, Madhab::Hanafi);
+        let params = Configuration::with(Method::NorthAmerica, Mazhab::Hanafi);
         let coordinates = Coordinates::new(35.7750, -78.6336);
         let times = PrayerTimes::new(local_date, coordinates, params);
         let current_prayer_time = local_date.and_hms_opt(22, 26, 0).unwrap().and_utc();
@@ -415,7 +412,7 @@ mod tests {
     fn current_prayer_should_be_maghrib() {
         // Given the below DateTime, maghrib is at 2015-07-13T00:32:00Z
         let local_date = NaiveDate::from_ymd_opt(2015, 7, 12).expect("Invalid data provided");
-        let params = Configuration::with(Method::NorthAmerica, Madhab::Hanafi);
+        let params = Configuration::with(Method::NorthAmerica, Mazhab::Hanafi);
         let coordinates = Coordinates::new(35.7750, -78.6336);
         let times = PrayerTimes::new(local_date, coordinates, params);
         let current_prayer_time = Utc.with_ymd_and_hms(2015, 7, 13, 01, 0, 0).unwrap();
@@ -430,7 +427,7 @@ mod tests {
     fn current_prayer_should_be_isha() {
         // Given the below DateTime, isha is at 2015-07-13T01:57:00Z
         let local_date = NaiveDate::from_ymd_opt(2015, 7, 12).expect("Invalid date provided");
-        let params = Configuration::with(Method::NorthAmerica, Madhab::Hanafi);
+        let params = Configuration::with(Method::NorthAmerica, Mazhab::Hanafi);
         let coordinates = Coordinates::new(35.7750, -78.6336);
         let times = PrayerTimes::new(local_date, coordinates, params);
         let current_prayer_time = Utc.with_ymd_and_hms(2015, 7, 13, 02, 0, 0).unwrap();
@@ -441,7 +438,7 @@ mod tests {
     #[test]
     fn current_prayer_should_be_none() {
         let local_date = NaiveDate::from_ymd_opt(2015, 7, 12).expect("Invalid data provided");
-        let params = Configuration::with(Method::NorthAmerica, Madhab::Hanafi);
+        let params = Configuration::with(Method::NorthAmerica, Mazhab::Hanafi);
         let coordinates = Coordinates::new(35.7750, -78.6336);
         let times = PrayerTimes::new(local_date, coordinates, params);
         let current_prayer_time = local_date.and_hms_opt(8, 0, 0).unwrap().and_utc();
@@ -452,7 +449,7 @@ mod tests {
     #[test]
     fn calculate_times_for_moonsighting_method() {
         let date = NaiveDate::from_ymd_opt(2016, 1, 31).expect("Invalid date provided");
-        let params = Configuration::with(Method::MoonsightingCommittee, Madhab::Shafi);
+        let params = Configuration::with(Method::MoonsightingCommittee, Mazhab::Shafi);
         let coordinates = Coordinates::new(35.7750, -78.6336);
         let result = PrayerSchedule::new()
             .on(date)
@@ -507,7 +504,7 @@ mod tests {
     #[test]
     fn calculate_times_for_moonsighting_method_with_high_latitude() {
         let date = NaiveDate::from_ymd_opt(2016, 1, 1).expect("Invalid date provided");
-        let params = Configuration::with(Method::MoonsightingCommittee, Madhab::Hanafi);
+        let params = Configuration::with(Method::MoonsightingCommittee, Mazhab::Hanafi);
         let coordinates = Coordinates::new(59.9094, 10.7349);
         let result = PrayerSchedule::new()
             .on(date)

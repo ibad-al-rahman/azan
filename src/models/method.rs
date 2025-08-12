@@ -1,11 +1,6 @@
-// Salah
-//
-// See README.md and LICENSE for more details.
-// Copyright (c) 2019-2022 Farhan Ahmed. All rights reserved.
-//
-
 use super::adjustments::Adjustment;
-use super::parameters::{Configuration, Parameters};
+use super::parameters::Configuration;
+use super::parameters::Parameters;
 use super::rounding::Rounding;
 
 /// Provides preset configuration for a few authorities

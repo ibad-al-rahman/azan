@@ -1,14 +1,11 @@
-// Salah
-//
-// See LICENSE for more details.
-// Copyright (c) 2019-2022 Farhan Ahmed. All rights reserved.
-//
-
-use chrono::{DateTime, Datelike, TimeZone, Utc};
-
 use crate::astronomy::ops;
+use crate::astronomy::unit::Angle;
+use crate::astronomy::unit::Coordinates;
 use crate::astronomy::unit::Stride;
-use crate::astronomy::unit::{Angle, Coordinates};
+use chrono::DateTime;
+use chrono::Datelike;
+use chrono::TimeZone;
+use chrono::Utc;
 
 #[derive(PartialEq, Debug, Copy, Clone)]
 pub struct SolarCoordinates {

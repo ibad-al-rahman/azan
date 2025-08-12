@@ -1,10 +1,6 @@
-// Salah
-//
-// See LICENSE for more details.
-// Copyright (c) 2019-2022 Farhan Ahmed. All rights reserved.
-//
-
-use chrono::{Datelike, Utc, Weekday};
+use chrono::Datelike;
+use chrono::Utc;
+use chrono::Weekday;
 
 /// Names of all obligatory prayers,
 /// sunrise, and Qiyam.

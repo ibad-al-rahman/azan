@@ -1,16 +1,10 @@
-// Salah
-//
-// See LICENSE for more details.
-// Copyright (c) 2019-2022 Farhan Ahmed. All rights reserved.
-//
-
 use super::adjustments::TimeAdjustment;
 use super::high_altitude_rule::HighLatitudeRule;
-use super::madhab::Madhab;
+use super::mazhab::Mazhab;
 use super::method::Method;
 use super::prayer::Prayer;
 use super::rounding::Rounding;
-use super::shafaq::Shafaq;
+use super::twilight::Twilight;
 
 /// Settings that are used for determining the
 /// the correct prayer time.
@@ -24,12 +18,12 @@ pub struct Parameters {
     pub maghrib_angle: f64,
     pub isha_angle: f64,
     pub isha_interval: i32,
-    pub madhab: Madhab,
+    pub madhab: Mazhab,
     pub high_latitude_rule: HighLatitudeRule,
     pub adjustments: TimeAdjustment,
     pub method_adjustments: TimeAdjustment,
     pub rounding: Rounding,
-    pub shafaq: Shafaq,
+    pub shafaq: Twilight,
 }
 
 impl Parameters {
@@ -40,12 +34,12 @@ impl Parameters {
             isha_angle: isha_angle,
             method: Method::Other,
             isha_interval: 0,
-            madhab: Madhab::Shafi,
+            madhab: Mazhab::Shafi,
             high_latitude_rule: HighLatitudeRule::MiddleOfTheNight,
             adjustments: TimeAdjustment::default(),
             method_adjustments: TimeAdjustment::default(),
             rounding: Rounding::Nearest,
-            shafaq: Shafaq::General,
+            shafaq: Twilight::General,
         }
     }
 
@@ -80,12 +74,12 @@ pub struct Configuration {
     maghrib_angle: f64,
     isha_angle: f64,
     isha_interval: i32,
-    madhab: Madhab,
+    madhab: Mazhab,
     high_latitude_rule: HighLatitudeRule,
     adjustments: TimeAdjustment,
     method_adjustments: TimeAdjustment,
     rounding: Rounding,
-    shafaq: Shafaq,
+    shafaq: Twilight,
 }
 
 impl Configuration {
@@ -96,16 +90,16 @@ impl Configuration {
             isha_angle: isha_angle,
             method: Method::Other,
             isha_interval: 0,
-            madhab: Madhab::Shafi,
+            madhab: Mazhab::Shafi,
             high_latitude_rule: HighLatitudeRule::MiddleOfTheNight,
             adjustments: TimeAdjustment::default(),
             method_adjustments: TimeAdjustment::default(),
             rounding: Rounding::Nearest,
-            shafaq: Shafaq::General,
+            shafaq: Twilight::General,
         }
     }
 
-    pub fn with(method: Method, madhab: Madhab) -> Parameters {
+    pub fn with(method: Method, madhab: Mazhab) -> Parameters {
         let mut params = method.parameters();
         params.madhab = madhab;
 
@@ -133,7 +127,7 @@ impl Configuration {
         self
     }
 
-    pub fn madhab<'a>(&'a mut self, madhab: Madhab) -> &'a mut Configuration {
+    pub fn madhab<'a>(&'a mut self, madhab: Mazhab) -> &'a mut Configuration {
         self.madhab = madhab;
         self
     }
@@ -154,7 +148,7 @@ impl Configuration {
         self
     }
 
-    pub fn shafaq<'a>(&'a mut self, value: Shafaq) -> &'a mut Configuration {
+    pub fn shafaq<'a>(&'a mut self, value: Twilight) -> &'a mut Configuration {
         self.shafaq = value;
         self
     }
@@ -219,12 +213,12 @@ mod tests {
 
     #[test]
     fn parameters_using_method_and_madhab() {
-        let params = Configuration::with(Method::NorthAmerica, Madhab::Hanafi);
+        let params = Configuration::with(Method::NorthAmerica, Mazhab::Hanafi);
 
         assert_eq!(params.method, Method::NorthAmerica);
         assert_eq!(params.fajr_angle, 15.0);
         assert_eq!(params.isha_angle, 15.0);
         assert_eq!(params.isha_interval, 0);
-        assert_eq!(params.madhab, Madhab::Hanafi);
+        assert_eq!(params.madhab, Mazhab::Hanafi);
     }
 }
