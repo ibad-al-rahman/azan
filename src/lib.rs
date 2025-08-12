@@ -5,7 +5,7 @@
 //! ##### Example
 //!
 //! ```
-//! use salah::prelude::*;
+//! use azan::prelude::*;
 //!
 //! let new_york_city = Coordinates::new(40.7128, -74.0059);
 //! let date          = NaiveDate::from_ymd_opt(2019, 1, 25).expect("Invalid date provided");

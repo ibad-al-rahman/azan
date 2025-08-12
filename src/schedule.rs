@@ -16,8 +16,6 @@ use chrono::Duration;
 use chrono::NaiveDate;
 use chrono::Utc;
 
-/// A data struct to hold the timing for all
-/// prayers.
 #[derive(PartialEq, Debug, Copy, Clone)]
 pub struct PrayerTimes {
     fajr: DateTime<Utc>,
