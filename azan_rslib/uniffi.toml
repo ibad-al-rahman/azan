@@ -1,0 +1,10 @@
+[bindings.kotlin]
+android = true
+cdylib_name = "azan"
+generate_immutable_records = true
+package_name = "org.ibadalrahman.azan"
+
+[bindings.swift]
+ffi_module_name = "AzanFFI"
+generate_immutable_records = true
+module_name = "AzanBindings"
