@@ -6,7 +6,7 @@ fn main() {
     println!();
     let makka = Coordinates::new(21.427009, 39.828685);
     let date = Utc::now().date_naive();
-    let params = Configuration::with(Method::UmmAlQura, Mazhab::Shafi);
+    let params = Method::UmmAlQura.parameters();
     let prayers = PrayerSchedule::new()
         .on(date)
         .for_location(makka)

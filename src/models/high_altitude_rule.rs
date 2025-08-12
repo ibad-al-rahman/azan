@@ -1,11 +1,12 @@
 use crate::astronomy::unit::Coordinates;
 
 /// Rule for approximating Fajr and Ishaa at high latitudes
-#[derive(PartialEq, Debug, Copy, Clone)]
+#[derive(PartialEq, Debug, Copy, Clone, Default)]
 pub enum HighLatitudeRule {
     /// Fajr won't be earlier than the midpoint of the night and ishaa
     /// won't be later than the midpoint of the night. This is the default
     /// value to prevent fajr and ishaa crossing boundaries.
+    #[default]
     MiddleOfTheNight,
 
     /// Fajr will never be earlier than the beginning of the last seventh of
