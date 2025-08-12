@@ -147,6 +147,7 @@ impl Method {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::models::ishaa_parameter::IshaaParameter;
 
     #[test]
     fn parameters_for_muslim_world_league() {
@@ -155,8 +156,7 @@ mod tests {
 
         assert_eq!(params.method, Method::MuslimWorldLeague);
         assert_eq!(params.fajr_angle, 18.0);
-        assert_eq!(params.ishaa_angle, 17.0);
-        assert_eq!(params.ishaa_interval, 0);
+        assert_eq!(params.ishaa_parameter, IshaaParameter::Angle(17.0));
     }
 
     #[test]
@@ -166,8 +166,7 @@ mod tests {
 
         assert_eq!(params.method, Method::Egyptian);
         assert_eq!(params.fajr_angle, 19.5);
-        assert_eq!(params.ishaa_angle, 17.5);
-        assert_eq!(params.ishaa_interval, 0);
+        assert_eq!(params.ishaa_parameter, IshaaParameter::Angle(17.5));
     }
 
     #[test]
@@ -177,8 +176,7 @@ mod tests {
 
         assert_eq!(params.method, Method::Karachi);
         assert_eq!(params.fajr_angle, 18.0);
-        assert_eq!(params.ishaa_angle, 18.0);
-        assert_eq!(params.ishaa_interval, 0);
+        assert_eq!(params.ishaa_parameter, IshaaParameter::Angle(18.0));
     }
 
     #[test]
@@ -188,8 +186,7 @@ mod tests {
 
         assert_eq!(params.method, Method::UmmAlQura);
         assert_eq!(params.fajr_angle, 18.5);
-        assert_eq!(params.ishaa_angle, 0.0);
-        assert_eq!(params.ishaa_interval, 90);
+        assert_eq!(params.ishaa_parameter, IshaaParameter::Interval(90));
     }
 
     #[test]
@@ -199,8 +196,7 @@ mod tests {
 
         assert_eq!(params.method, Method::Dubai);
         assert_eq!(params.fajr_angle, 18.2, "Parameters: {:?}", params);
-        assert_eq!(params.ishaa_angle, 18.2);
-        assert_eq!(params.ishaa_interval, 0);
+        assert_eq!(params.ishaa_parameter, IshaaParameter::Angle(18.2));
     }
 
     #[test]
@@ -210,8 +206,7 @@ mod tests {
 
         assert_eq!(params.method, Method::MoonsightingCommittee);
         assert_eq!(params.fajr_angle, 18.0);
-        assert_eq!(params.ishaa_angle, 18.0);
-        assert_eq!(params.ishaa_interval, 0);
+        assert_eq!(params.ishaa_parameter, IshaaParameter::Angle(18.0));
     }
 
     #[test]
@@ -221,8 +216,7 @@ mod tests {
 
         assert_eq!(params.method, Method::NorthAmerica);
         assert_eq!(params.fajr_angle, 15.0);
-        assert_eq!(params.ishaa_angle, 15.0);
-        assert_eq!(params.ishaa_interval, 0);
+        assert_eq!(params.ishaa_parameter, IshaaParameter::Angle(15.0));
     }
 
     #[test]
@@ -232,8 +226,7 @@ mod tests {
 
         assert_eq!(params.method, Method::Kuwait);
         assert_eq!(params.fajr_angle, 18.0);
-        assert_eq!(params.ishaa_angle, 17.5);
-        assert_eq!(params.ishaa_interval, 0);
+        assert_eq!(params.ishaa_parameter, IshaaParameter::Angle(17.5));
     }
 
     #[test]
@@ -243,8 +236,7 @@ mod tests {
 
         assert_eq!(params.method, Method::Qatar);
         assert_eq!(params.fajr_angle, 18.0);
-        assert_eq!(params.ishaa_angle, 0.0);
-        assert_eq!(params.ishaa_interval, 90);
+        assert_eq!(params.ishaa_parameter, IshaaParameter::Interval(90));
     }
 
     #[test]
@@ -254,8 +246,7 @@ mod tests {
 
         assert_eq!(params.method, Method::Singapore);
         assert_eq!(params.fajr_angle, 20.0);
-        assert_eq!(params.ishaa_angle, 18.0);
-        assert_eq!(params.ishaa_interval, 0);
+        assert_eq!(params.ishaa_parameter, IshaaParameter::Angle(18.0));
     }
 
     #[test]
@@ -265,7 +256,6 @@ mod tests {
 
         assert_eq!(params.method, Method::Other);
         assert_eq!(params.fajr_angle, 0.0);
-        assert_eq!(params.ishaa_angle, 0.0);
-        assert_eq!(params.ishaa_interval, 0);
+        assert_eq!(params.ishaa_parameter, IshaaParameter::Angle(0.0));
     }
 }

@@ -5,7 +5,10 @@
 
 use crate::astronomy::ops;
 use crate::astronomy::solar::SolarTime;
-use crate::astronomy::unit::{Angle, Coordinates, Stride};
+use crate::astronomy::unit::Angle;
+use crate::astronomy::unit::Coordinates;
+use crate::astronomy::unit::Stride;
+use crate::models::ishaa_parameter::IshaaParameter;
 use crate::models::method::Method;
 use crate::models::parameters::Parameters;
 use crate::models::prayer::Prayer;
@@ -220,49 +223,54 @@ impl PrayerTimes {
     ) -> DateTime<Utc> {
         let mut ishaa: DateTime<Utc>;
 
-        if parameters.ishaa_interval > 0 {
-            ishaa = solar_time
-                .sunset
-                .checked_add_signed(Duration::seconds((parameters.ishaa_interval * 60) as i64))
-                .unwrap();
-        } else {
-            ishaa = solar_time.time_for_solar_angle(Angle::new(-parameters.ishaa_angle), true);
-
-            // special case for moonsighting committee above latitude 55
-            if parameters.method == Method::MoonsightingCommittee && coordinates.latitude >= 55.0 {
-                let night_fraction = night.num_seconds() / 7;
+        match parameters.ishaa_parameter {
+            IshaaParameter::Interval(interval) => {
                 ishaa = solar_time
                     .sunset
-                    .checked_add_signed(Duration::seconds(night_fraction))
+                    .checked_add_signed(Duration::seconds((interval * 60) as i64))
                     .unwrap();
-            } else {
-                // Nothing to do.
             }
+            IshaaParameter::Angle(angle) => {
+                ishaa = solar_time.time_for_solar_angle(Angle::new(-angle), true);
 
-            let safe_isha = if parameters.method == Method::MoonsightingCommittee {
-                let day_of_year = prayer_date.ordinal();
+                // special case for moonsighting committee above latitude 55
+                if parameters.method == Method::MoonsightingCommittee
+                    && coordinates.latitude >= 55.0
+                {
+                    let night_fraction = night.num_seconds() / 7;
+                    ishaa = solar_time
+                        .sunset
+                        .checked_add_signed(Duration::seconds(night_fraction))
+                        .unwrap();
+                } else {
+                    // Nothing to do.
+                }
 
-                ops::season_adjusted_evening_twilight(
-                    coordinates.latitude,
-                    day_of_year,
-                    prayer_date.year() as u32,
-                    solar_time.sunset,
-                    parameters.twilight,
-                )
-            } else {
-                let portion = parameters.night_portions().1;
-                let night_fraction = portion * (night.num_seconds() as f64);
+                let safe_isha = if parameters.method == Method::MoonsightingCommittee {
+                    let day_of_year = prayer_date.ordinal();
 
-                solar_time
-                    .sunset
-                    .checked_add_signed(Duration::seconds(night_fraction as i64))
-                    .unwrap()
-            };
+                    ops::season_adjusted_evening_twilight(
+                        coordinates.latitude,
+                        day_of_year,
+                        prayer_date.year() as u32,
+                        solar_time.sunset,
+                        parameters.twilight,
+                    )
+                } else {
+                    let portion = parameters.night_portions().1;
+                    let night_fraction = portion * (night.num_seconds() as f64);
 
-            if ishaa > safe_isha {
-                ishaa = safe_isha;
-            } else {
-                // Nothing to do.
+                    solar_time
+                        .sunset
+                        .checked_add_signed(Duration::seconds(night_fraction as i64))
+                        .unwrap()
+                };
+
+                if ishaa > safe_isha {
+                    ishaa = safe_isha;
+                } else {
+                    // Nothing to do.
+                }
             }
         }
 

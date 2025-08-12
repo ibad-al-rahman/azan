@@ -1,3 +1,5 @@
+use crate::models::ishaa_parameter::IshaaParameter;
+
 use super::adjustments::TimeAdjustment;
 use super::high_altitude_rule::HighLatitudeRule;
 use super::mazhab::Mazhab;
@@ -16,8 +18,7 @@ pub struct Parameters {
     pub method: Method,
     pub fajr_angle: f64,
     pub maghrib_angle: f64,
-    pub ishaa_angle: f64,
-    pub ishaa_interval: i32,
+    pub ishaa_parameter: IshaaParameter,
     pub madhab: Mazhab,
     pub high_latitude_rule: HighLatitudeRule,
     pub adjustments: TimeAdjustment,
@@ -31,9 +32,8 @@ impl Parameters {
         Parameters {
             fajr_angle: fajr_angle,
             maghrib_angle: 0.0,
-            ishaa_angle: ishaa_angle,
+            ishaa_parameter: IshaaParameter::Angle(ishaa_angle),
             method: Method::Other,
-            ishaa_interval: 0,
             madhab: Mazhab::Shafi,
             high_latitude_rule: HighLatitudeRule::MiddleOfTheNight,
             adjustments: TimeAdjustment::default(),
@@ -44,10 +44,14 @@ impl Parameters {
     }
 
     pub fn night_portions(&self) -> (f64, f64) {
+        let ishaa_angle = match self.ishaa_parameter {
+            IshaaParameter::Angle(angle) => angle,
+            IshaaParameter::Interval(_) => 0.0,
+        };
         match self.high_latitude_rule {
             HighLatitudeRule::MiddleOfTheNight => (1.0 / 2.0, 1.0 / 2.0),
             HighLatitudeRule::SeventhOfTheNight => (1.0 / 7.0, 1.0 / 7.0),
-            HighLatitudeRule::TwilightAngle => (self.fajr_angle / 60.0, self.ishaa_angle / 60.0),
+            HighLatitudeRule::TwilightAngle => (self.fajr_angle / 60.0, ishaa_angle / 60.0),
         }
     }
 
@@ -72,8 +76,7 @@ pub struct Configuration {
     method: Method,
     fajr_angle: f64,
     maghrib_angle: f64,
-    ishaa_angle: f64,
-    ishaa_interval: i32,
+    ishaa_parameter: IshaaParameter,
     madhab: Mazhab,
     high_latitude_rule: HighLatitudeRule,
     adjustments: TimeAdjustment,
@@ -87,9 +90,8 @@ impl Configuration {
         Configuration {
             fajr_angle: fajr_angle,
             maghrib_angle: 0.0,
-            ishaa_angle: ishaa_angle,
+            ishaa_parameter: IshaaParameter::Angle(ishaa_angle),
             method: Method::Other,
-            ishaa_interval: 0,
             madhab: Mazhab::Shafi,
             high_latitude_rule: HighLatitudeRule::MiddleOfTheNight,
             adjustments: TimeAdjustment::default(),
@@ -133,8 +135,7 @@ impl Configuration {
     }
 
     pub fn ishaa_interval<'a>(&'a mut self, ishaa_interval: i32) -> &'a mut Configuration {
-        self.ishaa_angle = 0.0;
-        self.ishaa_interval = ishaa_interval;
+        self.ishaa_parameter = IshaaParameter::Interval(ishaa_interval);
         self
     }
 
@@ -157,9 +158,8 @@ impl Configuration {
         Parameters {
             fajr_angle: self.fajr_angle,
             maghrib_angle: self.maghrib_angle,
-            ishaa_angle: self.ishaa_angle,
+            ishaa_parameter: self.ishaa_parameter,
             method: self.method,
-            ishaa_interval: self.ishaa_interval,
             madhab: self.madhab,
             high_latitude_rule: self.high_latitude_rule,
             adjustments: self.adjustments,
@@ -179,8 +179,7 @@ mod tests {
         let params = Parameters::new(18.0, 18.0);
 
         assert_eq!(params.fajr_angle, 18.0);
-        assert_eq!(params.ishaa_angle, 18.0);
-        assert_eq!(params.ishaa_interval, 0);
+        assert_eq!(params.ishaa_parameter, IshaaParameter::Angle(18.0));
     }
 
     #[test]
@@ -217,8 +216,7 @@ mod tests {
 
         assert_eq!(params.method, Method::NorthAmerica);
         assert_eq!(params.fajr_angle, 15.0);
-        assert_eq!(params.ishaa_angle, 15.0);
-        assert_eq!(params.ishaa_interval, 0);
+        assert_eq!(params.ishaa_parameter, IshaaParameter::Angle(15.0));
         assert_eq!(params.madhab, Mazhab::Hanafi);
     }
 }
