@@ -1,0 +1,17 @@
+[package]
+name = "azan"
+version.workspace = true
+authors = [
+    "Farhan Ahmed <farhan@themacronaut.com>",
+    "Hamza Jadid <hamza.jadid@ibad.org.lb>",
+]
+edition.workspace = true
+description.workspace = true
+readme.workspace = true
+license.workspace = true
+
+[dependencies]
+chrono = "0.4.41"
+
+[dev-dependencies]
+spectral = "0.6.0"
