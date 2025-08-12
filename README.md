@@ -1,6 +1,6 @@
 # Azan
 
-Azan is a fork of [salah](https://github.com/insha/salah)
+A Rust native library for computing prayer times based on astronomical calculations
 
 ## Contributing
 
@@ -12,4 +12,4 @@ Our contributor code of conduct can be found in the `code-of-conduct.md` file.
 
 ## Acknowledgement
 
-This library is based on the [Adhan](https://github.com/batoulapps/Adhan) library by Batoul Apps. All astronomical calculations are high precision equations directly from the book [Astronomical Algorithms](http://www.willbell.com/math/mc1.htm) by Jean Meeus.
+This library is a fork of [salah](https://github.com/insha/salah), which is based on the [Adhan](https://github.com/batoulapps/Adhan) library by Batoul Apps. All astronomical calculations are high precision equations directly from the book [Astronomical Algorithms](http://www.willbell.com/math/mc1.htm) by Jean Meeus.
