@@ -8,11 +8,11 @@ use crate::models::rounding::Rounding;
 #[derive(PartialEq, Debug, Copy, Clone)]
 pub enum Method {
     /// Muslim World League. Standard Fajr time with an angle of 18°.
-    /// Earlier Isha time with an angle of 17°.
+    /// Earlier Ishaa time with an angle of 17°.
     MuslimWorldLeague,
 
     /// Egyptian General Authority of Survey. Early Fajr time using an angle 19.5°
-    /// and a slightly earlier Isha time using an angle of 17.5°.
+    /// and a slightly earlier Ishaa time using an angle of 17.5°.
     Egyptian,
 
     /// Umm al-Qura University, Makkah. Uses a fixed interval of 90 minutes
@@ -29,11 +29,11 @@ pub enum Method {
 
     /// Also known as the ISNA method. Can be used for North America,
     /// but the moonsightingCommittee method is preferable. Gives later Fajr times and early.
-    /// Isha times with angles of 15°.
+    /// Ishaa times with angles of 15°.
     NorthAmerica,
 
     /// Used in Singapore, Malaysia, and Indonesia. Early Fajr time with an angle of 20°
-    /// and standard Isha time with an angle of 18°.
+    /// and standard Ishaa time with an angle of 18°.
     Singapore,
 }
 

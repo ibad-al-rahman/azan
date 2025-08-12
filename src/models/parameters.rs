@@ -17,7 +17,7 @@ pub struct Parameters {
     pub fajr_angle: f64,
     pub maghrib_angle: f64,
     pub ishaa_parameter: IshaaParameter,
-    pub madhab: Mazhab,
+    pub mazhab: Mazhab,
     pub high_latitude_rule: HighLatitudeRule,
     pub adjustments: TimeAdjustment,
     pub method_adjustments: TimeAdjustment,
@@ -51,7 +51,7 @@ impl Parameters {
     }
 
     pub fn mazhab(mut self, mazhab: Mazhab) -> Self {
-        self.madhab = mazhab;
+        self.mazhab = mazhab;
         self
     }
 }
@@ -111,17 +111,17 @@ mod tests {
     }
 
     #[test]
-    fn parameters_using_method_and_madhab() {
+    fn parameters_using_method_and_mazhab() {
         let params = Parameters {
             fajr_angle: 15.0,
             ishaa_parameter: IshaaParameter::Angle(15.0),
             high_latitude_rule: HighLatitudeRule::SeventhOfTheNight,
-            madhab: Mazhab::Hanafi,
+            mazhab: Mazhab::Hanafi,
             ..Default::default()
         };
 
         assert_eq!(params.fajr_angle, 15.0);
         assert_eq!(params.ishaa_parameter, IshaaParameter::Angle(15.0));
-        assert_eq!(params.madhab, Mazhab::Hanafi);
+        assert_eq!(params.mazhab, Mazhab::Hanafi);
     }
 }

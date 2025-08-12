@@ -9,7 +9,7 @@
 //!
 //! let new_york_city = Coordinates::new(40.7128, -74.0059);
 //! let date          = NaiveDate::from_ymd_opt(2019, 1, 25).expect("Invalid date provided");
-//! let params        = Configuration::with(Method::NorthAmerica, Madhab::Hanafi);
+//! let params        = Configuration::with(Method::NorthAmerica, Mazhab::Hanafi);
 //! let prayers       = PrayerSchedule::new()
 //!                       .on(date)
 //!                       .for_location(new_york_city)

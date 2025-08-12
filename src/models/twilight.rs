@@ -8,10 +8,10 @@ pub enum Twilight {
     General,
 
     /// Ahmer means the twilight is the red glow in the sky.
-    /// Used by the Shafi, Maliki, and Hanbali madhabs.
+    /// Used by the Shafi, Maliki, and Hanbali mazaheb.
     Red,
 
     /// Abyad means the twilight is the white glow in the sky.
-    /// Used by the Hanafi madhab.
+    /// Used by the Hanafi mazhab.
     White,
 }

@@ -44,7 +44,7 @@ impl PrayerTimes {
         let solar_time = SolarTime::new(prayer_date, coordinates);
         let solar_time_tomorrow = SolarTime::new(tomorrow, coordinates);
 
-        let asr = solar_time.afternoon(parameters.madhab.shadow().into());
+        let asr = solar_time.afternoon(parameters.mazhab.shadow().into());
         let night = solar_time_tomorrow
             .sunrise
             .signed_duration_since(solar_time.sunset);
@@ -507,7 +507,7 @@ mod tests {
     fn calculate_times_for_moonsighting_method_with_high_latitude() {
         let date = NaiveDate::from_ymd_opt(2016, 1, 1).expect("Invalid date provided");
         let mut params = Method::MoonsightingCommittee.parameters();
-        params.madhab = Mazhab::Hanafi;
+        params.mazhab = Mazhab::Hanafi;
         let coordinates = Coordinates::new(59.9094, 10.7349);
         let result = PrayerSchedule::new()
             .on(date)
