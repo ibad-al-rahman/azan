@@ -1,7 +1,6 @@
 use super::adjustments::TimeAdjustment;
 use super::high_altitude_rule::HighLatitudeRule;
 use super::mazhab::Mazhab;
-use super::method::Method;
 use super::prayer::Prayer;
 use super::rounding::Rounding;
 use super::twilight::Twilight;
@@ -27,21 +26,6 @@ pub struct Parameters {
 }
 
 impl Parameters {
-    pub fn new(fajr_angle: f64, ishaa_angle: f64) -> Parameters {
-        Parameters {
-            fajr_angle: fajr_angle,
-            is_moonsighting_committee: false,
-            maghrib_angle: 0.0,
-            ishaa_parameter: IshaaParameter::Angle(ishaa_angle),
-            madhab: Mazhab::Shafi,
-            high_latitude_rule: HighLatitudeRule::MiddleOfTheNight,
-            adjustments: TimeAdjustment::default(),
-            method_adjustments: TimeAdjustment::default(),
-            rounding: Rounding::Nearest,
-            twilight: Twilight::General,
-        }
-    }
-
     pub fn night_portions(&self) -> (f64, f64) {
         let ishaa_angle = match self.ishaa_parameter {
             IshaaParameter::Angle(angle) => angle,
@@ -65,6 +49,11 @@ impl Parameters {
             _ => 0,
         }
     }
+
+    pub fn mazhab(mut self, mazhab: Mazhab) -> Self {
+        self.madhab = mazhab;
+        self
+    }
 }
 
 #[cfg(test)]
@@ -73,7 +62,11 @@ mod tests {
 
     #[test]
     fn calculate_parameters_with_fajr_and_ishaa_angles() {
-        let params = Parameters::new(18.0, 18.0);
+        let params = Parameters {
+            fajr_angle: 18.0,
+            ishaa_parameter: IshaaParameter::Angle(18.0),
+            ..Default::default()
+        };
 
         assert_eq!(params.fajr_angle, 18.0);
         assert_eq!(params.ishaa_parameter, IshaaParameter::Angle(18.0));
@@ -81,38 +74,54 @@ mod tests {
 
     #[test]
     fn calculated_night_portions_middle_of_the_night() {
-        let params = Parameters::new(18.0, 18.0);
+        let params = Parameters {
+            fajr_angle: 18.0,
+            ishaa_parameter: IshaaParameter::Angle(18.0),
+            ..Default::default()
+        };
 
         assert_eq!(params.night_portions().0, 1.0 / 2.0);
         assert_eq!(params.night_portions().1, 1.0 / 2.0);
     }
 
-    // #[test]
-    // fn calculated_night_portions_seventh_of_the_night() {
-    //     let params = Configuration::new(18.0, 18.0)
-    //         .high_latitude_rule(HighLatitudeRule::SeventhOfTheNight)
-    //         .done();
+    #[test]
+    fn calculated_night_portions_seventh_of_the_night() {
+        let params = Parameters {
+            fajr_angle: 18.0,
+            ishaa_parameter: IshaaParameter::Angle(18.0),
+            high_latitude_rule: HighLatitudeRule::SeventhOfTheNight,
+            ..Default::default()
+        };
 
-    //     assert_eq!(params.night_portions().0, 1.0 / 7.0);
-    //     assert_eq!(params.night_portions().1, 1.0 / 7.0);
-    // }
+        assert_eq!(params.night_portions().0, 1.0 / 7.0);
+        assert_eq!(params.night_portions().1, 1.0 / 7.0);
+    }
 
-    // #[test]
-    // fn calculated_night_portions_twilight_angle() {
-    //     let params = Configuration::new(10.0, 15.0)
-    //         .high_latitude_rule(HighLatitudeRule::TwilightAngle)
-    //         .done();
+    #[test]
+    fn calculated_night_portions_twilight_angle() {
+        let params = Parameters {
+            fajr_angle: 10.0,
+            ishaa_parameter: IshaaParameter::Angle(15.0),
+            high_latitude_rule: HighLatitudeRule::TwilightAngle,
+            ..Default::default()
+        };
 
-    //     assert_eq!(params.night_portions().0, 10.0 / 60.0);
-    //     assert_eq!(params.night_portions().1, 15.0 / 60.0);
-    // }
+        assert_eq!(params.night_portions().0, 10.0 / 60.0);
+        assert_eq!(params.night_portions().1, 15.0 / 60.0);
+    }
 
-    // #[test]
-    // fn parameters_using_method_and_madhab() {
-    //     let params = Configuration::with(Method::NorthAmerica, Mazhab::Hanafi);
+    #[test]
+    fn parameters_using_method_and_madhab() {
+        let params = Parameters {
+            fajr_angle: 15.0,
+            ishaa_parameter: IshaaParameter::Angle(15.0),
+            high_latitude_rule: HighLatitudeRule::SeventhOfTheNight,
+            madhab: Mazhab::Hanafi,
+            ..Default::default()
+        };
 
-    //     assert_eq!(params.fajr_angle, 15.0);
-    //     assert_eq!(params.ishaa_parameter, IshaaParameter::Angle(15.0));
-    //     assert_eq!(params.madhab, Mazhab::Hanafi);
-    // }
+        assert_eq!(params.fajr_angle, 15.0);
+        assert_eq!(params.ishaa_parameter, IshaaParameter::Angle(15.0));
+        assert_eq!(params.madhab, Mazhab::Hanafi);
+    }
 }
