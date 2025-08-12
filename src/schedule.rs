@@ -220,13 +220,13 @@ impl PrayerTimes {
     ) -> DateTime<Utc> {
         let mut ishaa: DateTime<Utc>;
 
-        if parameters.isha_interval > 0 {
+        if parameters.ishaa_interval > 0 {
             ishaa = solar_time
                 .sunset
-                .checked_add_signed(Duration::seconds((parameters.isha_interval * 60) as i64))
+                .checked_add_signed(Duration::seconds((parameters.ishaa_interval * 60) as i64))
                 .unwrap();
         } else {
-            ishaa = solar_time.time_for_solar_angle(Angle::new(-parameters.isha_angle), true);
+            ishaa = solar_time.time_for_solar_angle(Angle::new(-parameters.ishaa_angle), true);
 
             // special case for moonsighting committee above latitude 55
             if parameters.method == Method::MoonsightingCommittee && coordinates.latitude >= 55.0 {

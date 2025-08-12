@@ -1,5 +1,6 @@
 pub mod adjustments;
 pub mod high_altitude_rule;
+pub mod ishaa_parameter;
 pub mod mazhab;
 pub mod method;
 pub mod parameters;

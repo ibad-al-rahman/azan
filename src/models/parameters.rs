@@ -16,8 +16,8 @@ pub struct Parameters {
     pub method: Method,
     pub fajr_angle: f64,
     pub maghrib_angle: f64,
-    pub isha_angle: f64,
-    pub isha_interval: i32,
+    pub ishaa_angle: f64,
+    pub ishaa_interval: i32,
     pub madhab: Mazhab,
     pub high_latitude_rule: HighLatitudeRule,
     pub adjustments: TimeAdjustment,
@@ -27,13 +27,13 @@ pub struct Parameters {
 }
 
 impl Parameters {
-    pub fn new(fajr_angle: f64, isha_angle: f64) -> Parameters {
+    pub fn new(fajr_angle: f64, ishaa_angle: f64) -> Parameters {
         Parameters {
             fajr_angle: fajr_angle,
             maghrib_angle: 0.0,
-            isha_angle: isha_angle,
+            ishaa_angle: ishaa_angle,
             method: Method::Other,
-            isha_interval: 0,
+            ishaa_interval: 0,
             madhab: Mazhab::Shafi,
             high_latitude_rule: HighLatitudeRule::MiddleOfTheNight,
             adjustments: TimeAdjustment::default(),
@@ -47,7 +47,7 @@ impl Parameters {
         match self.high_latitude_rule {
             HighLatitudeRule::MiddleOfTheNight => (1.0 / 2.0, 1.0 / 2.0),
             HighLatitudeRule::SeventhOfTheNight => (1.0 / 7.0, 1.0 / 7.0),
-            HighLatitudeRule::TwilightAngle => (self.fajr_angle / 60.0, self.isha_angle / 60.0),
+            HighLatitudeRule::TwilightAngle => (self.fajr_angle / 60.0, self.ishaa_angle / 60.0),
         }
     }
 
@@ -72,8 +72,8 @@ pub struct Configuration {
     method: Method,
     fajr_angle: f64,
     maghrib_angle: f64,
-    isha_angle: f64,
-    isha_interval: i32,
+    ishaa_angle: f64,
+    ishaa_interval: i32,
     madhab: Mazhab,
     high_latitude_rule: HighLatitudeRule,
     adjustments: TimeAdjustment,
@@ -83,13 +83,13 @@ pub struct Configuration {
 }
 
 impl Configuration {
-    pub fn new(fajr_angle: f64, isha_angle: f64) -> Configuration {
+    pub fn new(fajr_angle: f64, ishaa_angle: f64) -> Configuration {
         Configuration {
             fajr_angle: fajr_angle,
             maghrib_angle: 0.0,
-            isha_angle: isha_angle,
+            ishaa_angle: ishaa_angle,
             method: Method::Other,
-            isha_interval: 0,
+            ishaa_interval: 0,
             madhab: Mazhab::Shafi,
             high_latitude_rule: HighLatitudeRule::MiddleOfTheNight,
             adjustments: TimeAdjustment::default(),
@@ -132,9 +132,9 @@ impl Configuration {
         self
     }
 
-    pub fn isha_interval<'a>(&'a mut self, isha_interval: i32) -> &'a mut Configuration {
-        self.isha_angle = 0.0;
-        self.isha_interval = isha_interval;
+    pub fn ishaa_interval<'a>(&'a mut self, ishaa_interval: i32) -> &'a mut Configuration {
+        self.ishaa_angle = 0.0;
+        self.ishaa_interval = ishaa_interval;
         self
     }
 
@@ -157,9 +157,9 @@ impl Configuration {
         Parameters {
             fajr_angle: self.fajr_angle,
             maghrib_angle: self.maghrib_angle,
-            isha_angle: self.isha_angle,
+            ishaa_angle: self.ishaa_angle,
             method: self.method,
-            isha_interval: self.isha_interval,
+            ishaa_interval: self.ishaa_interval,
             madhab: self.madhab,
             high_latitude_rule: self.high_latitude_rule,
             adjustments: self.adjustments,
@@ -175,12 +175,12 @@ mod tests {
     use super::*;
 
     #[test]
-    fn calculate_parameters_with_fajr_and_isha_angles() {
+    fn calculate_parameters_with_fajr_and_ishaa_angles() {
         let params = Parameters::new(18.0, 18.0);
 
         assert_eq!(params.fajr_angle, 18.0);
-        assert_eq!(params.isha_angle, 18.0);
-        assert_eq!(params.isha_interval, 0);
+        assert_eq!(params.ishaa_angle, 18.0);
+        assert_eq!(params.ishaa_interval, 0);
     }
 
     #[test]
@@ -217,8 +217,8 @@ mod tests {
 
         assert_eq!(params.method, Method::NorthAmerica);
         assert_eq!(params.fajr_angle, 15.0);
-        assert_eq!(params.isha_angle, 15.0);
-        assert_eq!(params.isha_interval, 0);
+        assert_eq!(params.ishaa_angle, 15.0);
+        assert_eq!(params.ishaa_interval, 0);
         assert_eq!(params.madhab, Mazhab::Hanafi);
     }
 }
