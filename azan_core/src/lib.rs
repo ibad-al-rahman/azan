@@ -19,6 +19,7 @@
 
 mod astronomy;
 mod models;
+mod parser;
 mod schedule;
 
 pub use crate::astronomy::unit::Coordinates;
