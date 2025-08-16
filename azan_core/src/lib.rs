@@ -106,7 +106,7 @@ mod tests {
     }
 
     #[test]
-    fn calculate_times_using_the_builder_successfully() {
+    fn calculate_times() {
         let date = NaiveDate::from_ymd_opt(2015, 7, 12).expect("Invalid date provided");
         let params = Method::NorthAmerica.parameters().mazhab(Mazhab::Hanafi);
         let coordinates = Coordinates::new(35.7750, -78.6336);

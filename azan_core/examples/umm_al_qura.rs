@@ -10,56 +10,56 @@ fn main() {
     let prayer_times = PrayerTimes::new(date, makka, params);
 
     println!(
-        "{}: {}",
-        Prayer::Fajr.name(),
+        "{:?}: {}",
+        Prayer::Fajr,
         prayer_times
             .time(Prayer::Fajr)
             .format("%-l:%M %p")
             .to_string()
     );
     println!(
-        "{}: {}",
-        Prayer::Sunrise.name(),
+        "{:?}: {}",
+        Prayer::Sunrise,
         prayer_times
             .time(Prayer::Sunrise)
             .format("%-l:%M %p")
             .to_string()
     );
     println!(
-        "{}: {}",
-        Prayer::Dhuhr.name(),
+        "{:?}: {}",
+        Prayer::Dhuhr,
         prayer_times
             .time(Prayer::Dhuhr)
             .format("%-l:%M %p")
             .to_string()
     );
     println!(
-        "{}: {}",
-        Prayer::Asr.name(),
+        "{:?}: {}",
+        Prayer::Asr,
         prayer_times
             .time(Prayer::Asr)
             .format("%-l:%M %p")
             .to_string()
     );
     println!(
-        "{}: {}",
-        Prayer::Maghrib.name(),
+        "{:?}: {}",
+        Prayer::Maghrib,
         prayer_times
             .time(Prayer::Maghrib)
             .format("%-l:%M %p")
             .to_string()
     );
     println!(
-        "{}: {}",
-        Prayer::Ishaa.name(),
+        "{:?}: {}",
+        Prayer::Ishaa,
         prayer_times
             .time(Prayer::Ishaa)
             .format("%-l:%M %p")
             .to_string()
     );
     println!(
-        "{}: {}",
-        Prayer::Qiyam.name(),
+        "{:?}: {}",
+        Prayer::Qiyam,
         prayer_times
             .time(Prayer::Qiyam)
             .format("%-l:%M %p")
