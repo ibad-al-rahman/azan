@@ -19,7 +19,7 @@
 
 mod astronomy;
 mod models;
-mod schedule;
+mod prayer_times;
 
 pub use crate::astronomy::unit::Coordinates;
 pub use crate::astronomy::unit::Stride;
@@ -28,8 +28,7 @@ pub use crate::models::mazhab::Mazhab;
 pub use crate::models::method::Method;
 pub use crate::models::parameters::Parameters;
 pub use crate::models::prayer::Prayer;
-pub use crate::schedule::PrayerSchedule;
-pub use crate::schedule::PrayerTimes;
+pub use crate::prayer_times::PrayerTimes;
 pub use chrono::DateTime;
 pub use chrono::Datelike;
 pub use chrono::Duration;
@@ -39,7 +38,7 @@ pub use chrono::TimeZone;
 pub use chrono::Timelike;
 pub use chrono::Utc;
 
-/// A convenience module appropriate for glob imports (`use salah::prelude::*;`).
+/// A convenience module appropriate for glob imports (`use azan::prelude::*;`).
 pub mod prelude {
     #[doc(no_inline)]
     pub use crate::astronomy::qiblah::Qiblah;
@@ -56,7 +55,7 @@ pub mod prelude {
     #[doc(no_inline)]
     pub use crate::models::prayer::Prayer;
     #[doc(no_inline)]
-    pub use crate::schedule::{PrayerSchedule, PrayerTimes};
+    pub use crate::prayer_times::PrayerTimes;
     #[doc(no_inline)]
     pub use chrono::{DateTime, Datelike, Duration, Local, NaiveDate, TimeZone, Timelike, Utc};
 }
@@ -107,66 +106,52 @@ mod tests {
     }
 
     #[test]
-    fn calculate_times_using_the_builder_successfully() {
+    fn calculate_times() {
         let date = NaiveDate::from_ymd_opt(2015, 7, 12).expect("Invalid date provided");
         let params = Method::NorthAmerica.parameters().mazhab(Mazhab::Hanafi);
         let coordinates = Coordinates::new(35.7750, -78.6336);
-        let result = PrayerSchedule::new()
-            .on(date)
-            .for_location(coordinates)
-            .with_configuration(params)
-            .calculate();
-
-        match result {
-            Ok(schedule) => {
-                assert_eq!(
-                    schedule.time(Prayer::Fajr).format("%-l:%M %p").to_string(),
-                    "8:42 AM"
-                );
-                assert_eq!(
-                    schedule
-                        .time(Prayer::Sunrise)
-                        .format("%-l:%M %p")
-                        .to_string(),
-                    "10:08 AM"
-                );
-                assert_eq!(
-                    schedule.time(Prayer::Dhuhr).format("%-l:%M %p").to_string(),
-                    "5:21 PM"
-                );
-                assert_eq!(
-                    schedule.time(Prayer::Asr).format("%-l:%M %p").to_string(),
-                    "10:22 PM"
-                );
-                assert_eq!(
-                    schedule
-                        .time(Prayer::Maghrib)
-                        .format("%-l:%M %p")
-                        .to_string(),
-                    "12:32 AM"
-                );
-                assert_eq!(
-                    schedule.time(Prayer::Ishaa).format("%-l:%M %p").to_string(),
-                    "1:57 AM"
-                );
-            }
-
-            Err(_err) => assert!(false),
-        }
-    }
-
-    #[test]
-    fn calculate_times_using_the_builder_failure() {
-        let date = NaiveDate::from_ymd_opt(2015, 7, 12).expect("Invalid date provided");
-        let params = Method::NorthAmerica.parameters().mazhab(Mazhab::Hanafi);
-        let result = PrayerSchedule::new()
-            .on(date)
-            .with_configuration(params)
-            .calculate();
-
-        assert!(
-            result.is_err(),
-            "We were expecting an error, but received data."
+        let prayer_times = PrayerTimes::new(date, coordinates, params);
+        assert_eq!(
+            prayer_times
+                .time(Prayer::Fajr)
+                .format("%-l:%M %p")
+                .to_string(),
+            "8:42 AM"
+        );
+        assert_eq!(
+            prayer_times
+                .time(Prayer::Sunrise)
+                .format("%-l:%M %p")
+                .to_string(),
+            "10:08 AM"
+        );
+        assert_eq!(
+            prayer_times
+                .time(Prayer::Dhuhr)
+                .format("%-l:%M %p")
+                .to_string(),
+            "5:21 PM"
+        );
+        assert_eq!(
+            prayer_times
+                .time(Prayer::Asr)
+                .format("%-l:%M %p")
+                .to_string(),
+            "10:22 PM"
+        );
+        assert_eq!(
+            prayer_times
+                .time(Prayer::Maghrib)
+                .format("%-l:%M %p")
+                .to_string(),
+            "12:32 AM"
+        );
+        assert_eq!(
+            prayer_times
+                .time(Prayer::Ishaa)
+                .format("%-l:%M %p")
+                .to_string(),
+            "1:57 AM"
         );
     }
 
@@ -175,32 +160,26 @@ mod tests {
         let date = NaiveDate::from_ymd_opt(2015, 7, 12).expect("Invalid date provided");
         let params = Method::NorthAmerica.parameters().mazhab(Mazhab::Hanafi);
         let coordinates = Coordinates::new(35.7750, -78.6336);
-        let result = PrayerSchedule::new()
-            .on(date)
-            .for_location(coordinates)
-            .with_configuration(params)
-            .calculate();
+        let prayer_times = PrayerTimes::new(date, coordinates, params);
 
-        match result {
-            Ok(schedule) => {
-                // Today's Maghrib: 2015-07-13T00:32:00Z
-                // Tomorrow's Fajr: 2015-07-13T08:43:00Z
-                // Middle of Night: 2015-07-13T04:38:00Z
-                // Last Third     : 2015-07-13T05:59:00Z
-                assert_eq!(
-                    schedule
-                        .time(Prayer::Maghrib)
-                        .format("%-l:%M %p")
-                        .to_string(),
-                    "12:32 AM"
-                );
-                assert_eq!(
-                    schedule.time(Prayer::Qiyam).format("%-l:%M %p").to_string(),
-                    "5:59 AM"
-                );
-            }
-            Err(_err) => assert!(false),
-        }
+        // Today's Maghrib: 2015-07-13T00:32:00Z
+        // Tomorrow's Fajr: 2015-07-13T08:43:00Z
+        // Middle of Night: 2015-07-13T04:38:00Z
+        // Last Third     : 2015-07-13T05:59:00Z
+        assert_eq!(
+            prayer_times
+                .time(Prayer::Maghrib)
+                .format("%-l:%M %p")
+                .to_string(),
+            "12:32 AM"
+        );
+        assert_eq!(
+            prayer_times
+                .time(Prayer::Qiyam)
+                .format("%-l:%M %p")
+                .to_string(),
+            "5:59 AM"
+        );
     }
 
     #[test]
@@ -209,45 +188,30 @@ mod tests {
 
         params.high_latitude_rule = HighLatitudeRule::MiddleOfTheNight;
 
-        let result = PrayerSchedule::new()
-            .on(NaiveDate::from_ymd_opt(2021, 1, 13).expect("Invalid date provided"))
-            .for_location(Coordinates::new(1.370844612058886, 103.80145644060552))
-            .with_configuration(params)
-            .calculate();
+        let prayer_times = PrayerTimes::new(
+            NaiveDate::from_ymd_opt(2021, 1, 13).expect("Invalid date provided"),
+            Coordinates::new(1.370844612058886, 103.80145644060552),
+            params,
+        );
 
-        match result {
-            Ok(schedule) => {
-                let hour = 3600;
-                let sgt_offset = FixedOffset::east_opt(8 * hour).expect("Invalid offset provided");
-                let sgt_fajr = schedule.time(Prayer::Fajr).with_timezone(&sgt_offset);
-                let sgt_sunrise = schedule.time(Prayer::Sunrise).with_timezone(&sgt_offset);
-                let sgt_dhuhr = schedule.time(Prayer::Dhuhr).with_timezone(&sgt_offset);
-                let sgt_asr = schedule.time(Prayer::Asr).with_timezone(&sgt_offset);
-                let sgt_maghrib = schedule.time(Prayer::Maghrib).with_timezone(&sgt_offset);
-                let sgt_isha = schedule.time(Prayer::Ishaa).with_timezone(&sgt_offset);
+        let hour = 3600;
+        let sgt_offset = FixedOffset::east_opt(8 * hour).expect("Invalid offset provided");
+        let sgt_fajr = prayer_times.time(Prayer::Fajr).with_timezone(&sgt_offset);
+        let sgt_sunrise = prayer_times
+            .time(Prayer::Sunrise)
+            .with_timezone(&sgt_offset);
+        let sgt_dhuhr = prayer_times.time(Prayer::Dhuhr).with_timezone(&sgt_offset);
+        let sgt_asr = prayer_times.time(Prayer::Asr).with_timezone(&sgt_offset);
+        let sgt_maghrib = prayer_times
+            .time(Prayer::Maghrib)
+            .with_timezone(&sgt_offset);
+        let sgt_isha = prayer_times.time(Prayer::Ishaa).with_timezone(&sgt_offset);
 
-                assert_eq!(sgt_fajr.format("%-l:%M %p").to_string(), "5:50 AM");
-                assert_eq!(sgt_sunrise.format("%-l:%M %p").to_string(), "7:13 AM");
-                assert_eq!(sgt_dhuhr.format("%-l:%M %p").to_string(), "1:15 PM");
-                assert_eq!(sgt_asr.format("%-l:%M %p").to_string(), "4:39 PM");
-                assert_eq!(sgt_maghrib.format("%-l:%M %p").to_string(), "7:16 PM");
-                assert_eq!(sgt_isha.format("%-l:%M %p").to_string(), "8:30 PM");
-            }
-            Err(_err) => assert!(false),
-        }
-    }
-
-    #[test]
-    fn calculate_time_for_kuala_lumpur() {
-        let location = Coordinates::new(3.12, 101.69);
-        let date = NaiveDate::from_ymd_opt(2024, 4, 9).expect("Invalid date provided");
-        let params = Method::MuslimWorldLeague.parameters().mazhab(Mazhab::Shafi);
-        let result = PrayerSchedule::new()
-            .on(date)
-            .for_location(location)
-            .with_configuration(params)
-            .calculate();
-
-        assert!(result.is_ok());
+        assert_eq!(sgt_fajr.format("%-l:%M %p").to_string(), "5:50 AM");
+        assert_eq!(sgt_sunrise.format("%-l:%M %p").to_string(), "7:13 AM");
+        assert_eq!(sgt_dhuhr.format("%-l:%M %p").to_string(), "1:15 PM");
+        assert_eq!(sgt_asr.format("%-l:%M %p").to_string(), "4:39 PM");
+        assert_eq!(sgt_maghrib.format("%-l:%M %p").to_string(), "7:16 PM");
+        assert_eq!(sgt_isha.format("%-l:%M %p").to_string(), "8:30 PM");
     }
 }

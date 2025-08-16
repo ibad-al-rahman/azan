@@ -7,50 +7,62 @@ fn main() {
     let makka = Coordinates::new(21.427009, 39.828685);
     let date = Utc::now().date_naive();
     let params = Method::UmmAlQura.parameters();
-    let prayers = PrayerSchedule::new()
-        .on(date)
-        .for_location(makka)
-        .with_configuration(params)
-        .calculate();
-
-    let Ok(prayer) = prayers else {
-        eprintln!("Could not calculate prayer times");
-        return;
-    };
+    let prayer_times = PrayerTimes::new(date, makka, params);
 
     println!(
-        "{}: {}",
-        Prayer::Fajr.name(),
-        prayer.time(Prayer::Fajr).format("%-l:%M %p").to_string()
+        "{:?}: {}",
+        Prayer::Fajr,
+        prayer_times
+            .time(Prayer::Fajr)
+            .format("%-l:%M %p")
+            .to_string()
     );
     println!(
-        "{}: {}",
-        Prayer::Sunrise.name(),
-        prayer.time(Prayer::Sunrise).format("%-l:%M %p").to_string()
+        "{:?}: {}",
+        Prayer::Sunrise,
+        prayer_times
+            .time(Prayer::Sunrise)
+            .format("%-l:%M %p")
+            .to_string()
     );
     println!(
-        "{}: {}",
-        Prayer::Dhuhr.name(),
-        prayer.time(Prayer::Dhuhr).format("%-l:%M %p").to_string()
+        "{:?}: {}",
+        Prayer::Dhuhr,
+        prayer_times
+            .time(Prayer::Dhuhr)
+            .format("%-l:%M %p")
+            .to_string()
     );
     println!(
-        "{}: {}",
-        Prayer::Asr.name(),
-        prayer.time(Prayer::Asr).format("%-l:%M %p").to_string()
+        "{:?}: {}",
+        Prayer::Asr,
+        prayer_times
+            .time(Prayer::Asr)
+            .format("%-l:%M %p")
+            .to_string()
     );
     println!(
-        "{}: {}",
-        Prayer::Maghrib.name(),
-        prayer.time(Prayer::Maghrib).format("%-l:%M %p").to_string()
+        "{:?}: {}",
+        Prayer::Maghrib,
+        prayer_times
+            .time(Prayer::Maghrib)
+            .format("%-l:%M %p")
+            .to_string()
     );
     println!(
-        "{}: {}",
-        Prayer::Ishaa.name(),
-        prayer.time(Prayer::Ishaa).format("%-l:%M %p").to_string()
+        "{:?}: {}",
+        Prayer::Ishaa,
+        prayer_times
+            .time(Prayer::Ishaa)
+            .format("%-l:%M %p")
+            .to_string()
     );
     println!(
-        "{}: {}",
-        Prayer::Qiyam.name(),
-        prayer.time(Prayer::Qiyam).format("%-l:%M %p").to_string()
+        "{:?}: {}",
+        Prayer::Qiyam,
+        prayer_times
+            .time(Prayer::Qiyam)
+            .format("%-l:%M %p")
+            .to_string()
     );
 }

@@ -92,9 +92,9 @@ impl PrayerTimes {
             middle_of_the_night: final_middle_of_night,
             qiyam: final_qiyam,
             fajr_tomorrow: final_fajr_tomorrow,
-            coordinates: coordinates,
+            coordinates,
             date: prayer_date,
-            parameters: parameters,
+            parameters,
         }
     }
 
@@ -307,52 +307,6 @@ impl PrayerTimes {
     }
 }
 
-/// A builder for the [PrayerTimes](struct.PrayerTimes.html) struct.
-pub struct PrayerSchedule {
-    date: Option<NaiveDate>,
-    coordinates: Option<Coordinates>,
-    params: Option<Parameters>,
-}
-
-impl PrayerSchedule {
-    pub fn new() -> PrayerSchedule {
-        PrayerSchedule {
-            date: None,
-            coordinates: None,
-            params: None,
-        }
-    }
-
-    pub fn on(&mut self, date: NaiveDate) -> &mut PrayerSchedule {
-        self.date = Some(date);
-        self
-    }
-
-    pub fn for_location(&mut self, location: Coordinates) -> &mut PrayerSchedule {
-        self.coordinates = Some(location);
-        self
-    }
-
-    pub fn with_configuration(&mut self, params: Parameters) -> &mut PrayerSchedule {
-        self.params = Some(params);
-        self
-    }
-
-    pub fn calculate(&self) -> Result<PrayerTimes, String> {
-        if self.date.is_some() && self.coordinates.is_some() && self.params.is_some() {
-            Ok(PrayerTimes::new(
-                self.date.unwrap(),
-                self.coordinates.unwrap(),
-                self.params.unwrap(),
-            ))
-        } else {
-            Err(String::from(
-                "Required information is needed in order to calculate the prayer times.",
-            ))
-        }
-    }
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -453,54 +407,56 @@ mod tests {
         let date = NaiveDate::from_ymd_opt(2016, 1, 31).expect("Invalid date provided");
         let params = Method::MoonsightingCommittee.parameters();
         let coordinates = Coordinates::new(35.7750, -78.6336);
-        let result = PrayerSchedule::new()
-            .on(date)
-            .for_location(coordinates)
-            .with_configuration(params)
-            .calculate();
+        let prayer_times = PrayerTimes::new(date, coordinates, params);
 
-        match result {
-            Ok(schedule) => {
-                // fajr    = 2016-01-31 10:48:00 UTC
-                // sunrise = 2016-01-31 12:16:00 UTC
-                // dhuhr   = 2016-01-31 17:33:00 UTC
-                // asr     = 2016-01-31 20:20:00 UTC
-                // maghrib = 2016-01-31 22:43:00 UTC
-                // ishaa    = 2016-02-01 00:05:00 UTC
-                assert_eq!(
-                    schedule.time(Prayer::Fajr).format("%-l:%M %p").to_string(),
-                    "10:48 AM"
-                );
-                assert_eq!(
-                    schedule
-                        .time(Prayer::Sunrise)
-                        .format("%-l:%M %p")
-                        .to_string(),
-                    "12:16 PM"
-                );
-                assert_eq!(
-                    schedule.time(Prayer::Dhuhr).format("%-l:%M %p").to_string(),
-                    "5:33 PM"
-                );
-                assert_eq!(
-                    schedule.time(Prayer::Asr).format("%-l:%M %p").to_string(),
-                    "8:20 PM"
-                );
-                assert_eq!(
-                    schedule
-                        .time(Prayer::Maghrib)
-                        .format("%-l:%M %p")
-                        .to_string(),
-                    "10:43 PM"
-                );
-                assert_eq!(
-                    schedule.time(Prayer::Ishaa).format("%-l:%M %p").to_string(),
-                    "12:05 AM"
-                );
-            }
-
-            Err(_err) => assert!(false),
-        }
+        // fajr    = 2016-01-31 10:48:00 UTC
+        // sunrise = 2016-01-31 12:16:00 UTC
+        // dhuhr   = 2016-01-31 17:33:00 UTC
+        // asr     = 2016-01-31 20:20:00 UTC
+        // maghrib = 2016-01-31 22:43:00 UTC
+        // ishaa    = 2016-02-01 00:05:00 UTC
+        assert_eq!(
+            prayer_times
+                .time(Prayer::Fajr)
+                .format("%-l:%M %p")
+                .to_string(),
+            "10:48 AM"
+        );
+        assert_eq!(
+            prayer_times
+                .time(Prayer::Sunrise)
+                .format("%-l:%M %p")
+                .to_string(),
+            "12:16 PM"
+        );
+        assert_eq!(
+            prayer_times
+                .time(Prayer::Dhuhr)
+                .format("%-l:%M %p")
+                .to_string(),
+            "5:33 PM"
+        );
+        assert_eq!(
+            prayer_times
+                .time(Prayer::Asr)
+                .format("%-l:%M %p")
+                .to_string(),
+            "8:20 PM"
+        );
+        assert_eq!(
+            prayer_times
+                .time(Prayer::Maghrib)
+                .format("%-l:%M %p")
+                .to_string(),
+            "10:43 PM"
+        );
+        assert_eq!(
+            prayer_times
+                .time(Prayer::Ishaa)
+                .format("%-l:%M %p")
+                .to_string(),
+            "12:05 AM"
+        );
     }
 
     #[test]
@@ -509,53 +465,55 @@ mod tests {
         let mut params = Method::MoonsightingCommittee.parameters();
         params.mazhab = Mazhab::Hanafi;
         let coordinates = Coordinates::new(59.9094, 10.7349);
-        let result = PrayerSchedule::new()
-            .on(date)
-            .for_location(coordinates)
-            .with_configuration(params)
-            .calculate();
+        let prayer_times = PrayerTimes::new(date, coordinates, params);
 
-        match result {
-            Ok(schedule) => {
-                // fajr    = 2016-01-01 06:34:00 UTC
-                // sunrise = 2016-01-01 08:19:00 UTC
-                // dhuhr   = 2016-01-01 11:25:00 UTC
-                // asr     = 2016-01-01 12:36:00 UTC
-                // maghrib = 2016-01-01 14:25:00 UTC
-                // ishaa    = 2016-01-01 16:02:00 UTC
-                assert_eq!(
-                    schedule.time(Prayer::Fajr).format("%-l:%M %p").to_string(),
-                    "6:34 AM"
-                );
-                assert_eq!(
-                    schedule
-                        .time(Prayer::Sunrise)
-                        .format("%-l:%M %p")
-                        .to_string(),
-                    "8:19 AM"
-                );
-                assert_eq!(
-                    schedule.time(Prayer::Dhuhr).format("%-l:%M %p").to_string(),
-                    "11:25 AM"
-                );
-                assert_eq!(
-                    schedule.time(Prayer::Asr).format("%-l:%M %p").to_string(),
-                    "12:36 PM"
-                );
-                assert_eq!(
-                    schedule
-                        .time(Prayer::Maghrib)
-                        .format("%-l:%M %p")
-                        .to_string(),
-                    "2:25 PM"
-                );
-                assert_eq!(
-                    schedule.time(Prayer::Ishaa).format("%-l:%M %p").to_string(),
-                    "4:02 PM"
-                );
-            }
-
-            Err(_err) => assert!(false),
-        }
+        // fajr    = 2016-01-01 06:34:00 UTC
+        // sunrise = 2016-01-01 08:19:00 UTC
+        // dhuhr   = 2016-01-01 11:25:00 UTC
+        // asr     = 2016-01-01 12:36:00 UTC
+        // maghrib = 2016-01-01 14:25:00 UTC
+        // ishaa    = 2016-01-01 16:02:00 UTC
+        assert_eq!(
+            prayer_times
+                .time(Prayer::Fajr)
+                .format("%-l:%M %p")
+                .to_string(),
+            "6:34 AM"
+        );
+        assert_eq!(
+            prayer_times
+                .time(Prayer::Sunrise)
+                .format("%-l:%M %p")
+                .to_string(),
+            "8:19 AM"
+        );
+        assert_eq!(
+            prayer_times
+                .time(Prayer::Dhuhr)
+                .format("%-l:%M %p")
+                .to_string(),
+            "11:25 AM"
+        );
+        assert_eq!(
+            prayer_times
+                .time(Prayer::Asr)
+                .format("%-l:%M %p")
+                .to_string(),
+            "12:36 PM"
+        );
+        assert_eq!(
+            prayer_times
+                .time(Prayer::Maghrib)
+                .format("%-l:%M %p")
+                .to_string(),
+            "2:25 PM"
+        );
+        assert_eq!(
+            prayer_times
+                .time(Prayer::Ishaa)
+                .format("%-l:%M %p")
+                .to_string(),
+            "4:02 PM"
+        );
     }
 }
