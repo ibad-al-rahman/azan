@@ -44,12 +44,7 @@ impl<Tz: TimeZone> Stride for DateTime<Tz> {
 
     /// Returns the Julian day.
     fn julian_day(&self) -> f64 {
-        ops::julian_day(
-            self.year() as i32,
-            self.month() as i32,
-            self.day() as i32,
-            0.0,
-        )
+        ops::julian_day(self.year(), self.month() as i32, self.day() as i32, 0.0)
     }
 
     fn rounded_minute(&self, rounding: Rounding) -> Self {
@@ -64,7 +59,7 @@ impl<Tz: TimeZone> Stride for DateTime<Tz> {
                 if rounded == 1 {
                     adjusted + Duration::seconds(60 - adjusted_seconds)
                 } else {
-                    adjusted + Duration::seconds(adjusted_seconds * -1)
+                    adjusted + Duration::seconds(-adjusted_seconds)
                 }
             }
             Rounding::Ceil => {
@@ -138,18 +133,14 @@ impl Angle {
     }
 
     pub fn quadrant_shifted(&self) -> Angle {
-        let angle: Angle;
-
         if self.degrees >= -180.0 && self.degrees <= 180.0 {
             // Nothing to do. Already initialized
             // to the default value.
-            angle = self.clone();
+            *self
         } else {
             let value = self.degrees - (360.0 * (self.degrees / 360.0).round());
-            angle = Angle { degrees: value };
+            Angle { degrees: value }
         }
-
-        angle
     }
 }
 
@@ -208,8 +199,8 @@ pub struct Coordinates {
 impl Coordinates {
     pub fn new(latitude: f64, longitude: f64) -> Self {
         Coordinates {
-            latitude: latitude,
-            longitude: longitude,
+            latitude,
+            longitude,
         }
     }
 }

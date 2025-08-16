@@ -69,9 +69,9 @@ impl SolarCoordinates {
         );
 
         SolarCoordinates {
-            declination: declination,
-            right_ascension: right_ascension,
-            apparent_sidereal_time: apparent_sidereal_time,
+            declination,
+            right_ascension,
+            apparent_sidereal_time,
         }
     }
 }
@@ -144,15 +144,15 @@ impl SolarTime {
         );
 
         SolarTime {
-            date: date,
+            date,
             observer: coordinates,
-            solar: solar,
+            solar,
             transit: SolarTime::setting_hour(transit_time, &date).unwrap(),
             sunrise: SolarTime::setting_hour(sunrise_time, &date).unwrap(),
             sunset: SolarTime::setting_hour(sunset_time, &date).unwrap(),
-            prev_solar: prev_solar,
-            next_solar: next_solar,
-            approx_transit: approx_transit,
+            prev_solar,
+            next_solar,
+            approx_transit,
         }
     }
 
@@ -190,8 +190,7 @@ impl SolarTime {
             let calculated_seconds =
                 ((value - (calculated_hours + calculated_minutes / 60.0)) * 60.0 * 60.0).floor();
 
-            let (adjusted_hour, adjusted_date) =
-                SolarTime::hour_adjustment(calculated_hours, &date);
+            let (adjusted_hour, adjusted_date) = SolarTime::hour_adjustment(calculated_hours, date);
 
             // Round to the nearest minute
             let adjusted_mins = (calculated_minutes + calculated_seconds / 60.0).round() as u32;
@@ -203,18 +202,15 @@ impl SolarTime {
                 (adjusted_hour, adjusted_mins, adjusted_secs)
             };
 
-            let adjusted = Utc
-                .with_ymd_and_hms(
-                    adjusted_date.year(),
-                    adjusted_date.month(),
-                    adjusted_date.day(),
-                    hour,
-                    mins,
-                    secs,
-                )
-                .single();
-
-            adjusted
+            Utc.with_ymd_and_hms(
+                adjusted_date.year(),
+                adjusted_date.month(),
+                adjusted_date.day(),
+                hour,
+                mins,
+                secs,
+            )
+            .single()
         } else {
             None
         }
@@ -229,7 +225,7 @@ impl SolarTime {
         } else if calculated_hours >= 24.0 {
             ((calculated_hours - 24.0) as u32, date.tomorrow())
         } else {
-            (calculated_hours as u32, date.clone())
+            (calculated_hours as u32, *date)
         }
     }
 }

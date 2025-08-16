@@ -92,9 +92,9 @@ impl PrayerTimes {
             middle_of_the_night: final_middle_of_night,
             qiyam: final_qiyam,
             fajr_tomorrow: final_fajr_tomorrow,
-            coordinates: coordinates,
+            coordinates,
             date: prayer_date,
-            parameters: parameters,
+            parameters,
         }
     }
 
