@@ -19,7 +19,7 @@
 
 mod astronomy;
 mod models;
-mod schedule;
+mod prayer_times;
 
 pub use crate::astronomy::unit::Coordinates;
 pub use crate::astronomy::unit::Stride;
@@ -28,7 +28,7 @@ pub use crate::models::mazhab::Mazhab;
 pub use crate::models::method::Method;
 pub use crate::models::parameters::Parameters;
 pub use crate::models::prayer::Prayer;
-pub use crate::schedule::PrayerTimes;
+pub use crate::prayer_times::PrayerTimes;
 pub use chrono::DateTime;
 pub use chrono::Datelike;
 pub use chrono::Duration;
@@ -38,7 +38,7 @@ pub use chrono::TimeZone;
 pub use chrono::Timelike;
 pub use chrono::Utc;
 
-/// A convenience module appropriate for glob imports (`use salah::prelude::*;`).
+/// A convenience module appropriate for glob imports (`use azan::prelude::*;`).
 pub mod prelude {
     #[doc(no_inline)]
     pub use crate::astronomy::qiblah::Qiblah;
@@ -55,7 +55,7 @@ pub mod prelude {
     #[doc(no_inline)]
     pub use crate::models::prayer::Prayer;
     #[doc(no_inline)]
-    pub use crate::schedule::PrayerTimes;
+    pub use crate::prayer_times::PrayerTimes;
     #[doc(no_inline)]
     pub use chrono::{DateTime, Datelike, Duration, Local, NaiveDate, TimeZone, Timelike, Utc};
 }
