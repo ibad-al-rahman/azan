@@ -1,6 +1,6 @@
 [package]
 name = "azan_rslib"
-version = "0.16.1"
+version = "0.1.0"
 edition.workspace = true
 publish = false
 repository.workspace = true
@@ -17,6 +17,7 @@ strip = "symbols"
 
 [dependencies]
 azan = { version = "*", path = "../azan_core" }
+chrono.workspace = true
 uniffi.workspace = true
 
 [build-dependencies]
