@@ -17,6 +17,7 @@ strip = "symbols"
 
 [dependencies]
 azan = { version = "*", path = "../azan_core" }
+chrono.workspace = true
 uniffi.workspace = true
 
 [build-dependencies]
