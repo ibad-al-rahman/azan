@@ -3,8 +3,7 @@ use chrono::Utc;
 use chrono::Weekday;
 use std::fmt::Debug;
 
-/// Names of all obligatory prayers,
-/// sunrise, and Qiyam.
+/// Names of all obligatory prayers and sunrise.
 #[derive(PartialEq, Copy, Clone)]
 pub enum Prayer {
     Fajr,
@@ -13,7 +12,6 @@ pub enum Prayer {
     Asr,
     Maghrib,
     Ishaa,
-    Qiyam,
     FajrTomorrow,
 }
 
@@ -32,7 +30,6 @@ impl Debug for Prayer {
             Prayer::Asr => write!(f, "Asr"),
             Prayer::Maghrib => write!(f, "Maghrib"),
             Prayer::Ishaa => write!(f, "Ishaa"),
-            Prayer::Qiyam => write!(f, "Qiyam"),
         }
     }
 }
@@ -55,6 +52,5 @@ mod tests {
         assert_eq!(format!("{:?}", Prayer::Asr), "Asr");
         assert_eq!(format!("{:?}", Prayer::Maghrib), "Maghrib");
         assert_eq!(format!("{:?}", Prayer::Ishaa), "Ishaa");
-        assert_eq!(format!("{:?}", Prayer::Qiyam), "Qiyam");
     }
 }

@@ -63,7 +63,6 @@ impl PrecomputedPrayerTimes {
             Prayer::Maghrib => self.maghrib,
             Prayer::Ishaa => self.ishaa,
             Prayer::FajrTomorrow => self.fajr_tomorrow,
-            Prayer::Qiyam => panic!("Qiyam is not supported for precomputed prayer times"),
         }
     }
 
@@ -78,7 +77,7 @@ impl PrecomputedPrayerTimes {
             Prayer::Dhuhr => Prayer::Asr,
             Prayer::Asr => Prayer::Maghrib,
             Prayer::Maghrib => Prayer::Ishaa,
-            Prayer::Ishaa | Prayer::Qiyam | Prayer::FajrTomorrow => Prayer::FajrTomorrow,
+            Prayer::Ishaa | Prayer::FajrTomorrow => Prayer::FajrTomorrow,
         }
     }
 

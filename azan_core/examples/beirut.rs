@@ -57,12 +57,4 @@ fn main() {
             .format("%-l:%M %p")
             .to_string()
     );
-    println!(
-        "{:?}: {}",
-        Prayer::Qiyam,
-        prayer_times
-            .time(Prayer::Qiyam)
-            .format("%-l:%M %p")
-            .to_string()
-    );
 }

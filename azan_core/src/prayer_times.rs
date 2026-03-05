@@ -11,7 +11,6 @@ use crate::astronomy::unit::Stride;
 use crate::models::ishaa_parameter::IshaaParameter;
 use crate::models::parameters::Parameters;
 use crate::models::prayer::Prayer;
-use crate::models::rounding::Rounding;
 use chrono::DateTime;
 use chrono::Datelike;
 use chrono::Duration;
@@ -26,8 +25,6 @@ pub struct PrayerTimes {
     asr: DateTime<Utc>,
     maghrib: DateTime<Utc>,
     ishaa: DateTime<Utc>,
-    middle_of_the_night: DateTime<Utc>,
-    qiyam: DateTime<Utc>,
     fajr_tomorrow: DateTime<Utc>,
     coordinates: Coordinates,
     date: DateTime<Utc>,
@@ -72,15 +69,13 @@ impl PrayerTimes {
             PrayerTimes::calculate_isha(parameters, solar_time, night, coordinates, prayer_date)
                 .rounded_minute(parameters.rounding);
 
-        // Calculate the middle of the night and qiyam times
-        let (final_middle_of_night, final_qiyam, final_fajr_tomorrow) =
-            PrayerTimes::calculate_qiyam(
-                final_maghrib,
-                parameters,
-                solar_time_tomorrow,
-                coordinates,
-                tomorrow,
-            );
+        let day_after_tomorrow = tomorrow.tomorrow();
+        let solar_time_day_after = SolarTime::new(day_after_tomorrow, coordinates);
+        let tomorrow_night = solar_time_day_after
+            .sunrise
+            .signed_duration_since(solar_time_tomorrow.sunset);
+        let final_fajr_tomorrow =
+            PrayerTimes::calculate_fajr(parameters, solar_time_tomorrow, tomorrow_night, coordinates, tomorrow);
 
         PrayerTimes {
             fajr: final_fajr,
@@ -89,8 +84,6 @@ impl PrayerTimes {
             asr: final_asr,
             maghrib: final_maghrib,
             ishaa: final_isha,
-            middle_of_the_night: final_middle_of_night,
-            qiyam: final_qiyam,
             fajr_tomorrow: final_fajr_tomorrow,
             coordinates,
             date: prayer_date,
@@ -106,7 +99,6 @@ impl PrayerTimes {
             Prayer::Asr => self.asr,
             Prayer::Maghrib => self.maghrib,
             Prayer::Ishaa => self.ishaa,
-            Prayer::Qiyam => self.qiyam,
             Prayer::FajrTomorrow => self.fajr_tomorrow,
         }
     }
@@ -122,9 +114,7 @@ impl PrayerTimes {
             Prayer::Dhuhr => Prayer::Asr,
             Prayer::Asr => Prayer::Maghrib,
             Prayer::Maghrib => Prayer::Ishaa,
-            Prayer::Ishaa => Prayer::Qiyam,
-            Prayer::Qiyam => Prayer::FajrTomorrow,
-            _ => Prayer::FajrTomorrow,
+            Prayer::Ishaa | Prayer::FajrTomorrow => Prayer::FajrTomorrow,
         }
     }
 
@@ -145,8 +135,6 @@ impl PrayerTimes {
 
         if self.fajr_tomorrow.signed_duration_since(time).num_seconds() <= 0 {
             current_prayer = Some(Prayer::FajrTomorrow)
-        } else if self.qiyam.signed_duration_since(time).num_seconds() <= 0 {
-            current_prayer = Some(Prayer::Qiyam)
         } else if self.ishaa.signed_duration_since(time).num_seconds() <= 0 {
             current_prayer = Some(Prayer::Ishaa);
         } else if self.maghrib.signed_duration_since(time).num_seconds() <= 0 {
@@ -274,38 +262,8 @@ impl PrayerTimes {
         ishaa.adjust_time(parameters.time_adjustments(Prayer::Ishaa))
     }
 
-    fn calculate_qiyam(
-        current_maghrib: DateTime<Utc>,
-        parameters: Parameters,
-        solar_time: SolarTime,
-        coordinates: Coordinates,
-        prayer_date: DateTime<Utc>,
-    ) -> (DateTime<Utc>, DateTime<Utc>, DateTime<Utc>) {
-        let tomorrow = prayer_date.tomorrow();
-        let solar_time_tomorrow = SolarTime::new(tomorrow, coordinates);
-        let night = solar_time_tomorrow
-            .sunrise
-            .signed_duration_since(solar_time.sunset);
-
-        let tomorrow_fajr =
-            PrayerTimes::calculate_fajr(parameters, solar_time, night, coordinates, prayer_date);
-        let night_duration = tomorrow_fajr
-            .signed_duration_since(current_maghrib)
-            .num_seconds() as f64;
-        let middle_night_portion = (night_duration / 2.0) as i64;
-        let last_third_portion = (night_duration * (2.0 / 3.0)) as i64;
-        let middle_of_night = current_maghrib
-            .checked_add_signed(Duration::seconds(middle_night_portion))
-            .unwrap()
-            .rounded_minute(Rounding::Nearest);
-        let last_third_of_night = current_maghrib
-            .checked_add_signed(Duration::seconds(last_third_portion))
-            .unwrap()
-            .rounded_minute(Rounding::Nearest);
-
-        (middle_of_night, last_third_of_night, tomorrow_fajr)
-    }
 }
+
 
 #[cfg(test)]
 mod tests {
