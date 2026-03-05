@@ -20,6 +20,7 @@
 mod astronomy;
 mod models;
 mod prayer_times;
+pub mod precomputed;
 
 pub use crate::astronomy::unit::Coordinates;
 pub use crate::astronomy::unit::Stride;
@@ -29,6 +30,8 @@ pub use crate::models::method::Method;
 pub use crate::models::parameters::Parameters;
 pub use crate::models::prayer::Prayer;
 pub use crate::prayer_times::PrayerTimes;
+pub use crate::precomputed::PrecomputedPrayerTimes;
+pub use crate::precomputed::provider::{Provider, ProviderCity};
 pub use chrono::DateTime;
 pub use chrono::Datelike;
 pub use chrono::Duration;
@@ -56,6 +59,10 @@ pub mod prelude {
     pub use crate::models::prayer::Prayer;
     #[doc(no_inline)]
     pub use crate::prayer_times::PrayerTimes;
+    #[doc(no_inline)]
+    pub use crate::precomputed::PrecomputedPrayerTimes;
+    #[doc(no_inline)]
+    pub use crate::precomputed::provider::{Provider, ProviderCity};
     #[doc(no_inline)]
     pub use chrono::{DateTime, Datelike, Duration, Local, NaiveDate, TimeZone, Timelike, Utc};
 }
