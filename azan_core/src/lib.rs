@@ -30,7 +30,6 @@ pub use crate::models::method::Method;
 pub use crate::models::parameters::Parameters;
 pub use crate::models::prayer::Prayer;
 pub use crate::prayer_times::PrayerTimes;
-pub use crate::precomputed::PrecomputedPrayerTimes;
 pub use crate::precomputed::provider::{Provider, ProviderCity};
 pub use chrono::DateTime;
 pub use chrono::Datelike;
@@ -60,8 +59,6 @@ pub mod prelude {
     #[doc(no_inline)]
     pub use crate::prayer_times::PrayerTimes;
     #[doc(no_inline)]
-    pub use crate::precomputed::PrecomputedPrayerTimes;
-    #[doc(no_inline)]
     pub use crate::precomputed::provider::{Provider, ProviderCity};
     #[doc(no_inline)]
     pub use chrono::{DateTime, Datelike, Duration, Local, NaiveDate, TimeZone, Timelike, Utc};
@@ -78,7 +75,7 @@ mod tests {
         let local_date = NaiveDate::from_ymd_opt(2015, 7, 12).expect("Invalid date provided");
         let params = Method::NorthAmerica.parameters().mazhab(Mazhab::Hanafi);
         let coordinates = Coordinates::new(35.7750, -78.6336);
-        let schedule = PrayerTimes::new(local_date, coordinates, params);
+        let schedule = PrayerTimes::computed(local_date, coordinates, params);
 
         assert_eq!(
             schedule.time(Prayer::Fajr).format("%-l:%M %p").to_string(),
@@ -117,7 +114,7 @@ mod tests {
         let date = NaiveDate::from_ymd_opt(2015, 7, 12).expect("Invalid date provided");
         let params = Method::NorthAmerica.parameters().mazhab(Mazhab::Hanafi);
         let coordinates = Coordinates::new(35.7750, -78.6336);
-        let prayer_times = PrayerTimes::new(date, coordinates, params);
+        let prayer_times = PrayerTimes::computed(date, coordinates, params);
         assert_eq!(
             prayer_times
                 .time(Prayer::Fajr)
@@ -168,7 +165,7 @@ mod tests {
 
         params.high_latitude_rule = HighLatitudeRule::MiddleOfTheNight;
 
-        let prayer_times = PrayerTimes::new(
+        let prayer_times = PrayerTimes::computed(
             NaiveDate::from_ymd_opt(2021, 1, 13).expect("Invalid date provided"),
             Coordinates::new(1.370844612058886, 103.80145644060552),
             params,

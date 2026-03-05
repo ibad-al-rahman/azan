@@ -7,7 +7,7 @@ fn main() {
     let makka = Coordinates::new(33.888630, 35.495480);
     let date = Utc::now().date_naive();
     let params = Method::Egyptian.parameters();
-    let prayer_times = PrayerTimes::new(date, makka, params);
+    let prayer_times = PrayerTimes::computed(date, makka, params);
 
     println!(
         "{:?}: {}",

@@ -6,7 +6,7 @@ fn main() {
     // --- Calculated prayer times (Beirut coordinates) ---
     let beirut = Coordinates::new(33.8938, 35.5018);
     let params = Method::MuslimWorldLeague.parameters().mazhab(Mazhab::Shafi);
-    let calculated = PrayerTimes::new(today, beirut, params);
+    let calculated = PrayerTimes::computed(today, beirut, params);
 
     println!("=== Calculated (Beirut) ===");
     println!(
@@ -35,8 +35,7 @@ fn main() {
     );
 
     // --- Precomputed prayer times (Dar El-Fatwa, Beirut) ---
-    let precomputed =
-        PrecomputedPrayerTimes::new(today, Provider::DarElFatwa(ProviderCity::Beirut));
+    let precomputed = PrayerTimes::precomputed(today, Provider::DarElFatwa(ProviderCity::Beirut));
 
     println!("\n=== Precomputed / Dar El-Fatwa (Beirut) ===");
     println!(
