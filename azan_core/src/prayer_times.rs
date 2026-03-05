@@ -11,9 +11,11 @@ use crate::astronomy::unit::Stride;
 use crate::models::ishaa_parameter::IshaaParameter;
 use crate::models::parameters::Parameters;
 use crate::models::prayer::Prayer;
-use crate::models::rounding::Rounding;
+use crate::precomputed::data::dar_el_fatwa_beirut;
+use crate::precomputed::provider::Provider;
 use chrono::DateTime;
 use chrono::Datelike;
+use chrono::Days;
 use chrono::Duration;
 use chrono::NaiveDate;
 use chrono::Utc;
@@ -26,16 +28,11 @@ pub struct PrayerTimes {
     asr: DateTime<Utc>,
     maghrib: DateTime<Utc>,
     ishaa: DateTime<Utc>,
-    middle_of_the_night: DateTime<Utc>,
-    qiyam: DateTime<Utc>,
     fajr_tomorrow: DateTime<Utc>,
-    coordinates: Coordinates,
-    date: DateTime<Utc>,
-    parameters: Parameters,
 }
 
 impl PrayerTimes {
-    pub fn new(date: NaiveDate, coordinates: Coordinates, parameters: Parameters) -> PrayerTimes {
+    pub fn computed(date: NaiveDate, coordinates: Coordinates, parameters: Parameters) -> PrayerTimes {
         let prayer_date = date
             .and_hms_opt(0, 0, 0)
             .expect("Invalid date provided")
@@ -72,15 +69,13 @@ impl PrayerTimes {
             PrayerTimes::calculate_isha(parameters, solar_time, night, coordinates, prayer_date)
                 .rounded_minute(parameters.rounding);
 
-        // Calculate the middle of the night and qiyam times
-        let (final_middle_of_night, final_qiyam, final_fajr_tomorrow) =
-            PrayerTimes::calculate_qiyam(
-                final_maghrib,
-                parameters,
-                solar_time_tomorrow,
-                coordinates,
-                tomorrow,
-            );
+        let day_after_tomorrow = tomorrow.tomorrow();
+        let solar_time_day_after = SolarTime::new(day_after_tomorrow, coordinates);
+        let tomorrow_night = solar_time_day_after
+            .sunrise
+            .signed_duration_since(solar_time_tomorrow.sunset);
+        let final_fajr_tomorrow =
+            PrayerTimes::calculate_fajr(parameters, solar_time_tomorrow, tomorrow_night, coordinates, tomorrow);
 
         PrayerTimes {
             fajr: final_fajr,
@@ -89,12 +84,40 @@ impl PrayerTimes {
             asr: final_asr,
             maghrib: final_maghrib,
             ishaa: final_isha,
-            middle_of_the_night: final_middle_of_night,
-            qiyam: final_qiyam,
             fajr_tomorrow: final_fajr_tomorrow,
-            coordinates,
-            date: prayer_date,
-            parameters,
+        }
+    }
+
+    pub fn precomputed(date: NaiveDate, provider: Provider) -> PrayerTimes {
+        let data = match provider {
+            Provider::DarElFatwa(_) => &dar_el_fatwa_beirut::DATA,
+        };
+
+        let month = date.month0() as usize;
+        let day = date.day0() as usize;
+        let times = data[month][day];
+
+        let tomorrow_date = date
+            .checked_add_days(Days::new(1))
+            .expect("failed to get tomorrow's date");
+        let tomorrow_day = tomorrow_date.day0() as usize;
+        let tomorrow_month = tomorrow_date.month0() as usize;
+        let tomorrow_times = data[tomorrow_month][tomorrow_day];
+
+        let make_time = |d: NaiveDate, h: u8, m: u8| -> DateTime<Utc> {
+            d.and_hms_opt(h.into(), m.into(), 0)
+                .expect("invalid prayer time")
+                .and_utc()
+        };
+
+        PrayerTimes {
+            fajr: make_time(date, times[0].0, times[0].1),
+            sunrise: make_time(date, times[1].0, times[1].1),
+            dhuhr: make_time(date, times[2].0, times[2].1),
+            asr: make_time(date, times[3].0, times[3].1),
+            maghrib: make_time(date, times[4].0, times[4].1),
+            ishaa: make_time(date, times[5].0, times[5].1),
+            fajr_tomorrow: make_time(tomorrow_date, tomorrow_times[0].0, tomorrow_times[0].1),
         }
     }
 
@@ -106,7 +129,6 @@ impl PrayerTimes {
             Prayer::Asr => self.asr,
             Prayer::Maghrib => self.maghrib,
             Prayer::Ishaa => self.ishaa,
-            Prayer::Qiyam => self.qiyam,
             Prayer::FajrTomorrow => self.fajr_tomorrow,
         }
     }
@@ -122,9 +144,7 @@ impl PrayerTimes {
             Prayer::Dhuhr => Prayer::Asr,
             Prayer::Asr => Prayer::Maghrib,
             Prayer::Maghrib => Prayer::Ishaa,
-            Prayer::Ishaa => Prayer::Qiyam,
-            Prayer::Qiyam => Prayer::FajrTomorrow,
-            _ => Prayer::FajrTomorrow,
+            Prayer::Ishaa | Prayer::FajrTomorrow => Prayer::FajrTomorrow,
         }
     }
 
@@ -145,8 +165,6 @@ impl PrayerTimes {
 
         if self.fajr_tomorrow.signed_duration_since(time).num_seconds() <= 0 {
             current_prayer = Some(Prayer::FajrTomorrow)
-        } else if self.qiyam.signed_duration_since(time).num_seconds() <= 0 {
-            current_prayer = Some(Prayer::Qiyam)
         } else if self.ishaa.signed_duration_since(time).num_seconds() <= 0 {
             current_prayer = Some(Prayer::Ishaa);
         } else if self.maghrib.signed_duration_since(time).num_seconds() <= 0 {
@@ -274,42 +292,13 @@ impl PrayerTimes {
         ishaa.adjust_time(parameters.time_adjustments(Prayer::Ishaa))
     }
 
-    fn calculate_qiyam(
-        current_maghrib: DateTime<Utc>,
-        parameters: Parameters,
-        solar_time: SolarTime,
-        coordinates: Coordinates,
-        prayer_date: DateTime<Utc>,
-    ) -> (DateTime<Utc>, DateTime<Utc>, DateTime<Utc>) {
-        let tomorrow = prayer_date.tomorrow();
-        let solar_time_tomorrow = SolarTime::new(tomorrow, coordinates);
-        let night = solar_time_tomorrow
-            .sunrise
-            .signed_duration_since(solar_time.sunset);
-
-        let tomorrow_fajr =
-            PrayerTimes::calculate_fajr(parameters, solar_time, night, coordinates, prayer_date);
-        let night_duration = tomorrow_fajr
-            .signed_duration_since(current_maghrib)
-            .num_seconds() as f64;
-        let middle_night_portion = (night_duration / 2.0) as i64;
-        let last_third_portion = (night_duration * (2.0 / 3.0)) as i64;
-        let middle_of_night = current_maghrib
-            .checked_add_signed(Duration::seconds(middle_night_portion))
-            .unwrap()
-            .rounded_minute(Rounding::Nearest);
-        let last_third_of_night = current_maghrib
-            .checked_add_signed(Duration::seconds(last_third_portion))
-            .unwrap()
-            .rounded_minute(Rounding::Nearest);
-
-        (middle_of_night, last_third_of_night, tomorrow_fajr)
-    }
 }
+
 
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::precomputed::provider::ProviderCity;
     use crate::{Mazhab, Method};
     use chrono::{NaiveDate, TimeZone, Utc};
 
@@ -319,7 +308,7 @@ mod tests {
         let local_date = NaiveDate::from_ymd_opt(2015, 7, 12).expect("Invalid date provided");
         let params = Method::NorthAmerica.parameters();
         let coordinates = Coordinates::new(35.7750, -78.6336);
-        let times = PrayerTimes::new(local_date, coordinates, params);
+        let times = PrayerTimes::computed(local_date, coordinates, params);
         let current_prayer_time = local_date.and_hms_opt(9, 0, 0).unwrap().and_utc();
 
         assert_eq!(times.current_time(current_prayer_time), Some(Prayer::Fajr));
@@ -331,7 +320,7 @@ mod tests {
         let local_date = NaiveDate::from_ymd_opt(2015, 7, 12).expect("Invalid date provided");
         let params = Method::NorthAmerica.parameters();
         let coordinates = Coordinates::new(35.7750, -78.6336);
-        let times = PrayerTimes::new(local_date, coordinates, params);
+        let times = PrayerTimes::computed(local_date, coordinates, params);
         let current_prayer_time = local_date.and_hms_opt(11, 0, 0).unwrap().and_utc();
 
         assert_eq!(
@@ -346,7 +335,7 @@ mod tests {
         let local_date = NaiveDate::from_ymd_opt(2015, 7, 12).expect("Invalid date provided");
         let params = Method::NorthAmerica.parameters();
         let coordinates = Coordinates::new(35.7750, -78.6336);
-        let times = PrayerTimes::new(local_date, coordinates, params);
+        let times = PrayerTimes::computed(local_date, coordinates, params);
         let current_prayer_time = local_date.and_hms_opt(19, 0, 0).unwrap().and_utc();
 
         assert_eq!(times.current_time(current_prayer_time), Some(Prayer::Dhuhr));
@@ -358,7 +347,7 @@ mod tests {
         let local_date = NaiveDate::from_ymd_opt(2015, 7, 12).expect("Invalid date provided");
         let params = Method::NorthAmerica.parameters();
         let coordinates = Coordinates::new(35.7750, -78.6336);
-        let times = PrayerTimes::new(local_date, coordinates, params);
+        let times = PrayerTimes::computed(local_date, coordinates, params);
         let current_prayer_time = local_date.and_hms_opt(22, 26, 0).unwrap().and_utc();
 
         assert_eq!(times.current_time(current_prayer_time), Some(Prayer::Asr));
@@ -370,7 +359,7 @@ mod tests {
         let local_date = NaiveDate::from_ymd_opt(2015, 7, 12).expect("Invalid data provided");
         let params = Method::NorthAmerica.parameters();
         let coordinates = Coordinates::new(35.7750, -78.6336);
-        let times = PrayerTimes::new(local_date, coordinates, params);
+        let times = PrayerTimes::computed(local_date, coordinates, params);
         let current_prayer_time = Utc.with_ymd_and_hms(2015, 7, 13, 01, 0, 0).unwrap();
 
         assert_eq!(
@@ -385,7 +374,7 @@ mod tests {
         let local_date = NaiveDate::from_ymd_opt(2015, 7, 12).expect("Invalid date provided");
         let params = Method::NorthAmerica.parameters();
         let coordinates = Coordinates::new(35.7750, -78.6336);
-        let times = PrayerTimes::new(local_date, coordinates, params);
+        let times = PrayerTimes::computed(local_date, coordinates, params);
         let current_prayer_time = Utc.with_ymd_and_hms(2015, 7, 13, 02, 0, 0).unwrap();
 
         assert_eq!(times.current_time(current_prayer_time), Some(Prayer::Ishaa));
@@ -396,7 +385,7 @@ mod tests {
         let local_date = NaiveDate::from_ymd_opt(2015, 7, 12).expect("Invalid data provided");
         let params = Method::NorthAmerica.parameters();
         let coordinates = Coordinates::new(35.7750, -78.6336);
-        let times = PrayerTimes::new(local_date, coordinates, params);
+        let times = PrayerTimes::computed(local_date, coordinates, params);
         let current_prayer_time = local_date.and_hms_opt(8, 0, 0).unwrap().and_utc();
 
         assert_eq!(times.current_time(current_prayer_time), None);
@@ -407,7 +396,7 @@ mod tests {
         let date = NaiveDate::from_ymd_opt(2016, 1, 31).expect("Invalid date provided");
         let params = Method::MoonsightingCommittee.parameters();
         let coordinates = Coordinates::new(35.7750, -78.6336);
-        let prayer_times = PrayerTimes::new(date, coordinates, params);
+        let prayer_times = PrayerTimes::computed(date, coordinates, params);
 
         // fajr    = 2016-01-31 10:48:00 UTC
         // sunrise = 2016-01-31 12:16:00 UTC
@@ -465,7 +454,7 @@ mod tests {
         let mut params = Method::MoonsightingCommittee.parameters();
         params.mazhab = Mazhab::Hanafi;
         let coordinates = Coordinates::new(59.9094, 10.7349);
-        let prayer_times = PrayerTimes::new(date, coordinates, params);
+        let prayer_times = PrayerTimes::computed(date, coordinates, params);
 
         // fajr    = 2016-01-01 06:34:00 UTC
         // sunrise = 2016-01-01 08:19:00 UTC
@@ -515,5 +504,94 @@ mod tests {
                 .to_string(),
             "4:02 PM"
         );
+    }
+
+    fn beirut(date: NaiveDate) -> PrayerTimes {
+        PrayerTimes::precomputed(date, Provider::DarElFatwa(ProviderCity::Beirut))
+    }
+
+    #[test]
+    fn jan1_fajr_is_utc_03_07() {
+        let pt = beirut(NaiveDate::from_ymd_opt(2026, 1, 1).unwrap());
+        assert_eq!(
+            pt.time(Prayer::Fajr),
+            Utc.with_ymd_and_hms(2026, 1, 1, 3, 7, 0).unwrap()
+        );
+    }
+
+    #[test]
+    fn jan1_all_prayers() {
+        let pt = beirut(NaiveDate::from_ymd_opt(2026, 1, 1).unwrap());
+        // Local: fajr 5:07, sunrise 6:43, dhuhr 11:41, asr 2:21, maghrib 4:45, ishaa 6:07 (UTC+2)
+        assert_eq!(
+            pt.time(Prayer::Fajr),
+            Utc.with_ymd_and_hms(2026, 1, 1, 3, 7, 0).unwrap()
+        );
+        assert_eq!(
+            pt.time(Prayer::Sunrise),
+            Utc.with_ymd_and_hms(2026, 1, 1, 4, 43, 0).unwrap()
+        );
+        assert_eq!(
+            pt.time(Prayer::Dhuhr),
+            Utc.with_ymd_and_hms(2026, 1, 1, 9, 41, 0).unwrap()
+        );
+        assert_eq!(
+            pt.time(Prayer::Asr),
+            Utc.with_ymd_and_hms(2026, 1, 1, 12, 21, 0).unwrap()
+        );
+        assert_eq!(
+            pt.time(Prayer::Maghrib),
+            Utc.with_ymd_and_hms(2026, 1, 1, 14, 45, 0).unwrap()
+        );
+        assert_eq!(
+            pt.time(Prayer::Ishaa),
+            Utc.with_ymd_and_hms(2026, 1, 1, 16, 7, 0).unwrap()
+        );
+    }
+
+    #[test]
+    fn mar29_dst_transition() {
+        // Mar 29: local 4:59 am, UTC+3 → UTC 1:59
+        let pt = beirut(NaiveDate::from_ymd_opt(2026, 3, 29).unwrap());
+        assert_eq!(
+            pt.time(Prayer::Fajr),
+            Utc.with_ymd_and_hms(2026, 3, 29, 1, 59, 0).unwrap()
+        );
+    }
+
+    #[test]
+    fn apr1_utc_offset3() {
+        // Apr 1: local 4:54 am, UTC+3 → UTC 1:54
+        let pt = beirut(NaiveDate::from_ymd_opt(2026, 4, 1).unwrap());
+        assert_eq!(
+            pt.time(Prayer::Fajr),
+            Utc.with_ymd_and_hms(2026, 4, 1, 1, 54, 0).unwrap()
+        );
+    }
+
+    #[test]
+    fn current_prayer_fajr() {
+        let date = NaiveDate::from_ymd_opt(2026, 1, 1).unwrap();
+        let pt = beirut(date);
+        // Time between fajr (3:07) and sunrise (4:43) → current = Fajr
+        let t = Utc.with_ymd_and_hms(2026, 1, 1, 3, 30, 0).unwrap();
+        assert_eq!(pt.current_time(t), Some(Prayer::Fajr));
+    }
+
+    #[test]
+    fn current_prayer_none_before_fajr() {
+        let date = NaiveDate::from_ymd_opt(2026, 1, 1).unwrap();
+        let pt = beirut(date);
+        let t = Utc.with_ymd_and_hms(2026, 1, 1, 2, 0, 0).unwrap();
+        assert_eq!(pt.current_time(t), None);
+    }
+
+    #[test]
+    fn current_prayer_ishaa() {
+        let date = NaiveDate::from_ymd_opt(2026, 1, 1).unwrap();
+        let pt = beirut(date);
+        // After ishaa (16:07 UTC) → current = Ishaa
+        let t = Utc.with_ymd_and_hms(2026, 1, 1, 20, 0, 0).unwrap();
+        assert_eq!(pt.current_time(t), Some(Prayer::Ishaa));
     }
 }

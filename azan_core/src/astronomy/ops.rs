@@ -302,11 +302,11 @@ pub fn julian_century(julian_day: f64) -> f64 {
 
 // Checks if the given year is a leap year.
 pub fn is_leap_year(year: u32) -> bool {
-    if year % 4 != 0 {
+    if !year.is_multiple_of(4) {
         return false;
     }
 
-    if year % 100 == 0 && year % 400 != 0 {
+    if year.is_multiple_of(100) && !year.is_multiple_of(400) {
         return false;
     }
 

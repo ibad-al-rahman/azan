@@ -7,7 +7,7 @@ fn main() {
     let makka = Coordinates::new(21.427009, 39.828685);
     let date = Utc::now().date_naive();
     let params = Method::UmmAlQura.parameters();
-    let prayer_times = PrayerTimes::new(date, makka, params);
+    let prayer_times = PrayerTimes::computed(date, makka, params);
 
     println!(
         "{:?}: {}",
@@ -54,14 +54,6 @@ fn main() {
         Prayer::Ishaa,
         prayer_times
             .time(Prayer::Ishaa)
-            .format("%-l:%M %p")
-            .to_string()
-    );
-    println!(
-        "{:?}: {}",
-        Prayer::Qiyam,
-        prayer_times
-            .time(Prayer::Qiyam)
             .format("%-l:%M %p")
             .to_string()
     );

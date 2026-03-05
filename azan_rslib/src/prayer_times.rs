@@ -24,7 +24,7 @@ impl PrayerTimes {
             .unwrap()
             .date_naive();
 
-        azan::PrayerTimes::new(date, coordinates, method.parameters()).into()
+        azan::PrayerTimes::computed(date, coordinates, method.parameters()).into()
     }
 }
 
