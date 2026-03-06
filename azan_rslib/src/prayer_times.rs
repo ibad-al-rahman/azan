@@ -1,43 +1,61 @@
 use azan::Coordinates;
 use azan::Method;
 use azan::Prayer;
+use azan::Provider;
 use chrono::DateTime;
 
-#[derive(PartialEq, Debug, Copy, Clone)]
+#[derive(uniffi::Object)]
 pub struct PrayerTimes {
-    fajr: i64,
-    sunrise: i64,
-    dhuhr: i64,
-    asr: i64,
-    maghrib: i64,
-    ishaa: i64,
-    fajr_tomorrow: i64,
+    pub fajr: i64,
+    pub sunrise: i64,
+    pub dhuhr: i64,
+    pub asr: i64,
+    pub maghrib: i64,
+    pub ishaa: i64,
+    pub fajr_tomorrow: i64,
+    inner: azan::PrayerTimes,
 }
 
+#[uniffi::export]
 impl PrayerTimes {
-    pub fn from_method(
-        date_utc_timestamp: i64,
-        coordinates: Coordinates,
-        method: Method,
-    ) -> PrayerTimes {
+    #[uniffi::constructor]
+    pub fn from_method(date_utc_timestamp: i64, coordinates: Coordinates, method: Method) -> Self {
         let date = DateTime::from_timestamp_millis(date_utc_timestamp)
             .unwrap()
             .date_naive();
+        let inner = azan::PrayerTimes::computed(date, coordinates, method.parameters());
+        Self::from_inner(inner)
+    }
 
-        azan::PrayerTimes::computed(date, coordinates, method.parameters()).into()
+    #[uniffi::constructor]
+    pub fn from_precomputed(date_utc_timestamp: i64, provider: Provider) -> Self {
+        let date = DateTime::from_timestamp_millis(date_utc_timestamp)
+            .unwrap()
+            .date_naive();
+        let inner = azan::PrayerTimes::precomputed(date, provider);
+        Self::from_inner(inner)
+    }
+
+    pub fn current_prayer(&self) -> Prayer {
+        self.inner.current()
+    }
+
+    pub fn next_prayer(&self) -> Prayer {
+        self.inner.next()
     }
 }
 
-impl From<azan::PrayerTimes> for PrayerTimes {
-    fn from(value: azan::PrayerTimes) -> Self {
+impl PrayerTimes {
+    fn from_inner(inner: azan::PrayerTimes) -> Self {
         PrayerTimes {
-            fajr: value.time(Prayer::Fajr).timestamp_millis(),
-            sunrise: value.time(Prayer::Sunrise).timestamp_millis(),
-            dhuhr: value.time(Prayer::Dhuhr).timestamp_millis(),
-            asr: value.time(Prayer::Asr).timestamp_millis(),
-            maghrib: value.time(Prayer::Maghrib).timestamp_millis(),
-            ishaa: value.time(Prayer::Ishaa).timestamp_millis(),
-            fajr_tomorrow: value.time(Prayer::FajrTomorrow).timestamp_millis(),
+            fajr: inner.time(Prayer::Fajr).timestamp_millis(),
+            sunrise: inner.time(Prayer::Sunrise).timestamp_millis(),
+            dhuhr: inner.time(Prayer::Dhuhr).timestamp_millis(),
+            asr: inner.time(Prayer::Asr).timestamp_millis(),
+            maghrib: inner.time(Prayer::Maghrib).timestamp_millis(),
+            ishaa: inner.time(Prayer::Ishaa).timestamp_millis(),
+            fajr_tomorrow: inner.time(Prayer::FajrTomorrow).timestamp_millis(),
+            inner,
         }
     }
 }

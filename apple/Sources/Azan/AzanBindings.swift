@@ -400,6 +400,22 @@ fileprivate final class UniffiHandleMap<T>: @unchecked Sendable {
 #if swift(>=5.8)
 @_documentation(visibility: private)
 #endif
+fileprivate struct FfiConverterInt64: FfiConverterPrimitive {
+    typealias FfiType = Int64
+    typealias SwiftType = Int64
+
+    public static func read(from buf: inout (data: Data, offset: Data.Index)) throws -> Int64 {
+        return try lift(readInt(&buf))
+    }
+
+    public static func write(_ value: Int64, into buf: inout [UInt8]) {
+        writeInt(&buf, lower(value))
+    }
+}
+
+#if swift(>=5.8)
+@_documentation(visibility: private)
+#endif
 fileprivate struct FfiConverterDouble: FfiConverterPrimitive {
     typealias FfiType = Double
     typealias SwiftType = Double
@@ -453,6 +469,156 @@ fileprivate struct FfiConverterString: FfiConverter {
         writeBytes(&buf, value.utf8)
     }
 }
+
+
+
+
+public protocol PrayerTimesProtocol: AnyObject, Sendable {
+    
+    func currentPrayer()  -> Prayer
+    
+    func nextPrayer()  -> Prayer
+    
+}
+open class PrayerTimes: PrayerTimesProtocol, @unchecked Sendable {
+    fileprivate let pointer: UnsafeMutableRawPointer!
+
+    /// Used to instantiate a [FFIObject] without an actual pointer, for fakes in tests, mostly.
+#if swift(>=5.8)
+    @_documentation(visibility: private)
+#endif
+    public struct NoPointer {
+        public init() {}
+    }
+
+    // TODO: We'd like this to be `private` but for Swifty reasons,
+    // we can't implement `FfiConverter` without making this `required` and we can't
+    // make it `required` without making it `public`.
+#if swift(>=5.8)
+    @_documentation(visibility: private)
+#endif
+    required public init(unsafeFromRawPointer pointer: UnsafeMutableRawPointer) {
+        self.pointer = pointer
+    }
+
+    // This constructor can be used to instantiate a fake object.
+    // - Parameter noPointer: Placeholder value so we can have a constructor separate from the default empty one that may be implemented for classes extending [FFIObject].
+    //
+    // - Warning:
+    //     Any object instantiated with this constructor cannot be passed to an actual Rust-backed object. Since there isn't a backing [Pointer] the FFI lower functions will crash.
+#if swift(>=5.8)
+    @_documentation(visibility: private)
+#endif
+    public init(noPointer: NoPointer) {
+        self.pointer = nil
+    }
+
+#if swift(>=5.8)
+    @_documentation(visibility: private)
+#endif
+    public func uniffiClonePointer() -> UnsafeMutableRawPointer {
+        return try! rustCall { uniffi_azan_fn_clone_prayertimes(self.pointer, $0) }
+    }
+    // No primary constructor declared for this class.
+
+    deinit {
+        guard let pointer = pointer else {
+            return
+        }
+
+        try! rustCall { uniffi_azan_fn_free_prayertimes(pointer, $0) }
+    }
+
+    
+public static func fromMethod(dateUtcTimestamp: Int64, coordinates: Coordinates, method: Method) -> PrayerTimes  {
+    return try!  FfiConverterTypePrayerTimes_lift(try! rustCall() {
+    uniffi_azan_fn_constructor_prayertimes_from_method(
+        FfiConverterInt64.lower(dateUtcTimestamp),
+        FfiConverterTypeCoordinates_lower(coordinates),
+        FfiConverterTypeMethod_lower(method),$0
+    )
+})
+}
+    
+public static func fromPrecomputed(dateUtcTimestamp: Int64, provider: Provider) -> PrayerTimes  {
+    return try!  FfiConverterTypePrayerTimes_lift(try! rustCall() {
+    uniffi_azan_fn_constructor_prayertimes_from_precomputed(
+        FfiConverterInt64.lower(dateUtcTimestamp),
+        FfiConverterTypeProvider_lower(provider),$0
+    )
+})
+}
+    
+
+    
+open func currentPrayer() -> Prayer  {
+    return try!  FfiConverterTypePrayer_lift(try! rustCall() {
+    uniffi_azan_fn_method_prayertimes_current_prayer(self.uniffiClonePointer(),$0
+    )
+})
+}
+    
+open func nextPrayer() -> Prayer  {
+    return try!  FfiConverterTypePrayer_lift(try! rustCall() {
+    uniffi_azan_fn_method_prayertimes_next_prayer(self.uniffiClonePointer(),$0
+    )
+})
+}
+    
+
+}
+
+
+#if swift(>=5.8)
+@_documentation(visibility: private)
+#endif
+public struct FfiConverterTypePrayerTimes: FfiConverter {
+
+    typealias FfiType = UnsafeMutableRawPointer
+    typealias SwiftType = PrayerTimes
+
+    public static func lift(_ pointer: UnsafeMutableRawPointer) throws -> PrayerTimes {
+        return PrayerTimes(unsafeFromRawPointer: pointer)
+    }
+
+    public static func lower(_ value: PrayerTimes) -> UnsafeMutableRawPointer {
+        return value.uniffiClonePointer()
+    }
+
+    public static func read(from buf: inout (data: Data, offset: Data.Index)) throws -> PrayerTimes {
+        let v: UInt64 = try readInt(&buf)
+        // The Rust code won't compile if a pointer won't fit in a UInt64.
+        // We have to go via `UInt` because that's the thing that's the size of a pointer.
+        let ptr = UnsafeMutableRawPointer(bitPattern: UInt(truncatingIfNeeded: v))
+        if (ptr == nil) {
+            throw UniffiInternalError.unexpectedNullPointer
+        }
+        return try lift(ptr!)
+    }
+
+    public static func write(_ value: PrayerTimes, into buf: inout [UInt8]) {
+        // This fiddling is because `Int` is the thing that's the same size as a pointer.
+        // The Rust code won't compile if a pointer won't fit in a `UInt64`.
+        writeInt(&buf, UInt64(bitPattern: Int64(Int(bitPattern: lower(value)))))
+    }
+}
+
+
+#if swift(>=5.8)
+@_documentation(visibility: private)
+#endif
+public func FfiConverterTypePrayerTimes_lift(_ pointer: UnsafeMutableRawPointer) throws -> PrayerTimes {
+    return try FfiConverterTypePrayerTimes.lift(pointer)
+}
+
+#if swift(>=5.8)
+@_documentation(visibility: private)
+#endif
+public func FfiConverterTypePrayerTimes_lower(_ value: PrayerTimes) -> UnsafeMutableRawPointer {
+    return FfiConverterTypePrayerTimes.lower(value)
+}
+
+
 
 
 public struct Coordinates {
@@ -523,6 +689,76 @@ public func FfiConverterTypeCoordinates_lift(_ buf: RustBuffer) throws -> Coordi
 public func FfiConverterTypeCoordinates_lower(_ value: Coordinates) -> RustBuffer {
     return FfiConverterTypeCoordinates.lower(value)
 }
+
+// Note that we don't yet support `indirect` for enums.
+// See https://github.com/mozilla/uniffi-rs/issues/396 for further discussion.
+
+public enum Mazhab {
+    
+    case shafi
+    case hanafi
+}
+
+
+#if compiler(>=6)
+extension Mazhab: Sendable {}
+#endif
+
+#if swift(>=5.8)
+@_documentation(visibility: private)
+#endif
+public struct FfiConverterTypeMazhab: FfiConverterRustBuffer {
+    typealias SwiftType = Mazhab
+
+    public static func read(from buf: inout (data: Data, offset: Data.Index)) throws -> Mazhab {
+        let variant: Int32 = try readInt(&buf)
+        switch variant {
+        
+        case 1: return .shafi
+        
+        case 2: return .hanafi
+        
+        default: throw UniffiInternalError.unexpectedEnumCase
+        }
+    }
+
+    public static func write(_ value: Mazhab, into buf: inout [UInt8]) {
+        switch value {
+        
+        
+        case .shafi:
+            writeInt(&buf, Int32(1))
+        
+        
+        case .hanafi:
+            writeInt(&buf, Int32(2))
+        
+        }
+    }
+}
+
+
+#if swift(>=5.8)
+@_documentation(visibility: private)
+#endif
+public func FfiConverterTypeMazhab_lift(_ buf: RustBuffer) throws -> Mazhab {
+    return try FfiConverterTypeMazhab.lift(buf)
+}
+
+#if swift(>=5.8)
+@_documentation(visibility: private)
+#endif
+public func FfiConverterTypeMazhab_lower(_ value: Mazhab) -> RustBuffer {
+    return FfiConverterTypeMazhab.lower(value)
+}
+
+
+extension Mazhab: Equatable, Hashable {}
+
+
+
+
+
 
 // Note that we don't yet support `indirect` for enums.
 // See https://github.com/mozilla/uniffi-rs/issues/396 for further discussion.
@@ -622,6 +858,240 @@ extension Method: Equatable, Hashable {}
 
 
 
+// Note that we don't yet support `indirect` for enums.
+// See https://github.com/mozilla/uniffi-rs/issues/396 for further discussion.
+
+public enum Prayer {
+    
+    case fajr
+    case sunrise
+    case dhuhr
+    case asr
+    case maghrib
+    case ishaa
+    case fajrTomorrow
+}
+
+
+#if compiler(>=6)
+extension Prayer: Sendable {}
+#endif
+
+#if swift(>=5.8)
+@_documentation(visibility: private)
+#endif
+public struct FfiConverterTypePrayer: FfiConverterRustBuffer {
+    typealias SwiftType = Prayer
+
+    public static func read(from buf: inout (data: Data, offset: Data.Index)) throws -> Prayer {
+        let variant: Int32 = try readInt(&buf)
+        switch variant {
+        
+        case 1: return .fajr
+        
+        case 2: return .sunrise
+        
+        case 3: return .dhuhr
+        
+        case 4: return .asr
+        
+        case 5: return .maghrib
+        
+        case 6: return .ishaa
+        
+        case 7: return .fajrTomorrow
+        
+        default: throw UniffiInternalError.unexpectedEnumCase
+        }
+    }
+
+    public static func write(_ value: Prayer, into buf: inout [UInt8]) {
+        switch value {
+        
+        
+        case .fajr:
+            writeInt(&buf, Int32(1))
+        
+        
+        case .sunrise:
+            writeInt(&buf, Int32(2))
+        
+        
+        case .dhuhr:
+            writeInt(&buf, Int32(3))
+        
+        
+        case .asr:
+            writeInt(&buf, Int32(4))
+        
+        
+        case .maghrib:
+            writeInt(&buf, Int32(5))
+        
+        
+        case .ishaa:
+            writeInt(&buf, Int32(6))
+        
+        
+        case .fajrTomorrow:
+            writeInt(&buf, Int32(7))
+        
+        }
+    }
+}
+
+
+#if swift(>=5.8)
+@_documentation(visibility: private)
+#endif
+public func FfiConverterTypePrayer_lift(_ buf: RustBuffer) throws -> Prayer {
+    return try FfiConverterTypePrayer.lift(buf)
+}
+
+#if swift(>=5.8)
+@_documentation(visibility: private)
+#endif
+public func FfiConverterTypePrayer_lower(_ value: Prayer) -> RustBuffer {
+    return FfiConverterTypePrayer.lower(value)
+}
+
+
+extension Prayer: Equatable, Hashable {}
+
+
+
+
+
+
+// Note that we don't yet support `indirect` for enums.
+// See https://github.com/mozilla/uniffi-rs/issues/396 for further discussion.
+
+public enum Provider {
+    
+    case darElFatwa(ProviderCity
+    )
+}
+
+
+#if compiler(>=6)
+extension Provider: Sendable {}
+#endif
+
+#if swift(>=5.8)
+@_documentation(visibility: private)
+#endif
+public struct FfiConverterTypeProvider: FfiConverterRustBuffer {
+    typealias SwiftType = Provider
+
+    public static func read(from buf: inout (data: Data, offset: Data.Index)) throws -> Provider {
+        let variant: Int32 = try readInt(&buf)
+        switch variant {
+        
+        case 1: return .darElFatwa(try FfiConverterTypeProviderCity.read(from: &buf)
+        )
+        
+        default: throw UniffiInternalError.unexpectedEnumCase
+        }
+    }
+
+    public static func write(_ value: Provider, into buf: inout [UInt8]) {
+        switch value {
+        
+        
+        case let .darElFatwa(v1):
+            writeInt(&buf, Int32(1))
+            FfiConverterTypeProviderCity.write(v1, into: &buf)
+            
+        }
+    }
+}
+
+
+#if swift(>=5.8)
+@_documentation(visibility: private)
+#endif
+public func FfiConverterTypeProvider_lift(_ buf: RustBuffer) throws -> Provider {
+    return try FfiConverterTypeProvider.lift(buf)
+}
+
+#if swift(>=5.8)
+@_documentation(visibility: private)
+#endif
+public func FfiConverterTypeProvider_lower(_ value: Provider) -> RustBuffer {
+    return FfiConverterTypeProvider.lower(value)
+}
+
+
+extension Provider: Equatable, Hashable {}
+
+
+
+
+
+
+// Note that we don't yet support `indirect` for enums.
+// See https://github.com/mozilla/uniffi-rs/issues/396 for further discussion.
+
+public enum ProviderCity {
+    
+    case beirut
+}
+
+
+#if compiler(>=6)
+extension ProviderCity: Sendable {}
+#endif
+
+#if swift(>=5.8)
+@_documentation(visibility: private)
+#endif
+public struct FfiConverterTypeProviderCity: FfiConverterRustBuffer {
+    typealias SwiftType = ProviderCity
+
+    public static func read(from buf: inout (data: Data, offset: Data.Index)) throws -> ProviderCity {
+        let variant: Int32 = try readInt(&buf)
+        switch variant {
+        
+        case 1: return .beirut
+        
+        default: throw UniffiInternalError.unexpectedEnumCase
+        }
+    }
+
+    public static func write(_ value: ProviderCity, into buf: inout [UInt8]) {
+        switch value {
+        
+        
+        case .beirut:
+            writeInt(&buf, Int32(1))
+        
+        }
+    }
+}
+
+
+#if swift(>=5.8)
+@_documentation(visibility: private)
+#endif
+public func FfiConverterTypeProviderCity_lift(_ buf: RustBuffer) throws -> ProviderCity {
+    return try FfiConverterTypeProviderCity.lift(buf)
+}
+
+#if swift(>=5.8)
+@_documentation(visibility: private)
+#endif
+public func FfiConverterTypeProviderCity_lower(_ value: ProviderCity) -> RustBuffer {
+    return FfiConverterTypeProviderCity.lower(value)
+}
+
+
+extension ProviderCity: Equatable, Hashable {}
+
+
+
+
+
+
 private enum InitializationResult {
     case ok
     case contractVersionMismatch
@@ -636,6 +1106,18 @@ private let initializationResult: InitializationResult = {
     let scaffolding_contract_version = ffi_azan_uniffi_contract_version()
     if bindings_contract_version != scaffolding_contract_version {
         return InitializationResult.contractVersionMismatch
+    }
+    if (uniffi_azan_checksum_method_prayertimes_current_prayer() != 20976) {
+        return InitializationResult.apiChecksumMismatch
+    }
+    if (uniffi_azan_checksum_method_prayertimes_next_prayer() != 44511) {
+        return InitializationResult.apiChecksumMismatch
+    }
+    if (uniffi_azan_checksum_constructor_prayertimes_from_method() != 20727) {
+        return InitializationResult.apiChecksumMismatch
+    }
+    if (uniffi_azan_checksum_constructor_prayertimes_from_precomputed() != 16680) {
+        return InitializationResult.apiChecksumMismatch
     }
 
     return InitializationResult.ok

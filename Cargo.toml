@@ -14,5 +14,5 @@ edition = "2024"
 repository = "https://github.com/ibad-al-rahman/azan"
 
 [workspace.dependencies]
-uniffi = "0.29.4"
-chrono = "0.4.42"
+uniffi = "0.31.0"
+chrono = "0.4.44"
