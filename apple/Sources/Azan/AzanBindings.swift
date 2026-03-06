@@ -352,19 +352,29 @@ private func uniffiTraitInterfaceCallWithError<T, E>(
         callStatus.pointee.errorBuf = FfiConverterString.lower(String(describing: error))
     }
 }
+// Initial value and increment amount for handles. 
+// These ensure that SWIFT handles always have the lowest bit set
+fileprivate let UNIFFI_HANDLEMAP_INITIAL: UInt64 = 1
+fileprivate let UNIFFI_HANDLEMAP_DELTA: UInt64 = 2
+
 fileprivate final class UniffiHandleMap<T>: @unchecked Sendable {
     // All mutation happens with this lock held, which is why we implement @unchecked Sendable.
     private let lock = NSLock()
     private var map: [UInt64: T] = [:]
-    private var currentHandle: UInt64 = 1
+    private var currentHandle: UInt64 = UNIFFI_HANDLEMAP_INITIAL
 
     func insert(obj: T) -> UInt64 {
         lock.withLock {
-            let handle = currentHandle
-            currentHandle += 1
-            map[handle] = obj
-            return handle
+            return doInsert(obj)
         }
+    }
+
+    // Low-level insert function, this assumes `lock` is held.
+    private func doInsert(_ obj: T) -> UInt64 {
+        let handle = currentHandle
+        currentHandle += UNIFFI_HANDLEMAP_DELTA
+        map[handle] = obj
+        return handle
     }
 
      func get(handle: UInt64) throws -> T {
@@ -373,6 +383,15 @@ fileprivate final class UniffiHandleMap<T>: @unchecked Sendable {
                 throw UniffiInternalError.unexpectedStaleHandle
             }
             return obj
+        }
+    }
+
+     func clone(handle: UInt64) throws -> UInt64 {
+        try lock.withLock {
+            guard let obj = map[handle] else {
+                throw UniffiInternalError.unexpectedStaleHandle
+            }
+            return doInsert(obj)
         }
     }
 
@@ -481,13 +500,13 @@ public protocol PrayerTimesProtocol: AnyObject, Sendable {
     
 }
 open class PrayerTimes: PrayerTimesProtocol, @unchecked Sendable {
-    fileprivate let pointer: UnsafeMutableRawPointer!
+    fileprivate let handle: UInt64
 
-    /// Used to instantiate a [FFIObject] without an actual pointer, for fakes in tests, mostly.
+    /// Used to instantiate a [FFIObject] without an actual handle, for fakes in tests, mostly.
 #if swift(>=5.8)
     @_documentation(visibility: private)
 #endif
-    public struct NoPointer {
+    public struct NoHandle {
         public init() {}
     }
 
@@ -497,36 +516,37 @@ open class PrayerTimes: PrayerTimesProtocol, @unchecked Sendable {
 #if swift(>=5.8)
     @_documentation(visibility: private)
 #endif
-    required public init(unsafeFromRawPointer pointer: UnsafeMutableRawPointer) {
-        self.pointer = pointer
+    required public init(unsafeFromHandle handle: UInt64) {
+        self.handle = handle
     }
 
     // This constructor can be used to instantiate a fake object.
-    // - Parameter noPointer: Placeholder value so we can have a constructor separate from the default empty one that may be implemented for classes extending [FFIObject].
+    // - Parameter noHandle: Placeholder value so we can have a constructor separate from the default empty one that may be implemented for classes extending [FFIObject].
     //
     // - Warning:
-    //     Any object instantiated with this constructor cannot be passed to an actual Rust-backed object. Since there isn't a backing [Pointer] the FFI lower functions will crash.
+    //     Any object instantiated with this constructor cannot be passed to an actual Rust-backed object. Since there isn't a backing handle the FFI lower functions will crash.
 #if swift(>=5.8)
     @_documentation(visibility: private)
 #endif
-    public init(noPointer: NoPointer) {
-        self.pointer = nil
+    public init(noHandle: NoHandle) {
+        self.handle = 0
     }
 
 #if swift(>=5.8)
     @_documentation(visibility: private)
 #endif
-    public func uniffiClonePointer() -> UnsafeMutableRawPointer {
-        return try! rustCall { uniffi_azan_fn_clone_prayertimes(self.pointer, $0) }
+    public func uniffiCloneHandle() -> UInt64 {
+        return try! rustCall { uniffi_azan_fn_clone_prayertimes(self.handle, $0) }
     }
     // No primary constructor declared for this class.
 
     deinit {
-        guard let pointer = pointer else {
+        if handle == 0 {
+            // Mock objects have handle=0 don't try to free them
             return
         }
 
-        try! rustCall { uniffi_azan_fn_free_prayertimes(pointer, $0) }
+        try! rustCall { uniffi_azan_fn_free_prayertimes(handle, $0) }
     }
 
     
@@ -553,19 +573,22 @@ public static func fromPrecomputed(dateUtcTimestamp: Int64, provider: Provider) 
     
 open func currentPrayer() -> Prayer  {
     return try!  FfiConverterTypePrayer_lift(try! rustCall() {
-    uniffi_azan_fn_method_prayertimes_current_prayer(self.uniffiClonePointer(),$0
+    uniffi_azan_fn_method_prayertimes_current_prayer(
+            self.uniffiCloneHandle(),$0
     )
 })
 }
     
 open func nextPrayer() -> Prayer  {
     return try!  FfiConverterTypePrayer_lift(try! rustCall() {
-    uniffi_azan_fn_method_prayertimes_next_prayer(self.uniffiClonePointer(),$0
+    uniffi_azan_fn_method_prayertimes_next_prayer(
+            self.uniffiCloneHandle(),$0
     )
 })
 }
     
 
+    
 }
 
 
@@ -573,33 +596,24 @@ open func nextPrayer() -> Prayer  {
 @_documentation(visibility: private)
 #endif
 public struct FfiConverterTypePrayerTimes: FfiConverter {
-
-    typealias FfiType = UnsafeMutableRawPointer
+    typealias FfiType = UInt64
     typealias SwiftType = PrayerTimes
 
-    public static func lift(_ pointer: UnsafeMutableRawPointer) throws -> PrayerTimes {
-        return PrayerTimes(unsafeFromRawPointer: pointer)
+    public static func lift(_ handle: UInt64) throws -> PrayerTimes {
+        return PrayerTimes(unsafeFromHandle: handle)
     }
 
-    public static func lower(_ value: PrayerTimes) -> UnsafeMutableRawPointer {
-        return value.uniffiClonePointer()
+    public static func lower(_ value: PrayerTimes) -> UInt64 {
+        return value.uniffiCloneHandle()
     }
 
     public static func read(from buf: inout (data: Data, offset: Data.Index)) throws -> PrayerTimes {
-        let v: UInt64 = try readInt(&buf)
-        // The Rust code won't compile if a pointer won't fit in a UInt64.
-        // We have to go via `UInt` because that's the thing that's the size of a pointer.
-        let ptr = UnsafeMutableRawPointer(bitPattern: UInt(truncatingIfNeeded: v))
-        if (ptr == nil) {
-            throw UniffiInternalError.unexpectedNullPointer
-        }
-        return try lift(ptr!)
+        let handle: UInt64 = try readInt(&buf)
+        return try lift(handle)
     }
 
     public static func write(_ value: PrayerTimes, into buf: inout [UInt8]) {
-        // This fiddling is because `Int` is the thing that's the same size as a pointer.
-        // The Rust code won't compile if a pointer won't fit in a `UInt64`.
-        writeInt(&buf, UInt64(bitPattern: Int64(Int(bitPattern: lower(value)))))
+        writeInt(&buf, lower(value))
     }
 }
 
@@ -607,21 +621,21 @@ public struct FfiConverterTypePrayerTimes: FfiConverter {
 #if swift(>=5.8)
 @_documentation(visibility: private)
 #endif
-public func FfiConverterTypePrayerTimes_lift(_ pointer: UnsafeMutableRawPointer) throws -> PrayerTimes {
-    return try FfiConverterTypePrayerTimes.lift(pointer)
+public func FfiConverterTypePrayerTimes_lift(_ handle: UInt64) throws -> PrayerTimes {
+    return try FfiConverterTypePrayerTimes.lift(handle)
 }
 
 #if swift(>=5.8)
 @_documentation(visibility: private)
 #endif
-public func FfiConverterTypePrayerTimes_lower(_ value: PrayerTimes) -> UnsafeMutableRawPointer {
+public func FfiConverterTypePrayerTimes_lower(_ value: PrayerTimes) -> UInt64 {
     return FfiConverterTypePrayerTimes.lower(value)
 }
 
 
 
 
-public struct Coordinates {
+public struct Coordinates: Equatable, Hashable {
     public let latitude: Double
     public let longitude: Double
 
@@ -631,31 +645,15 @@ public struct Coordinates {
         self.latitude = latitude
         self.longitude = longitude
     }
+
+    
+
+    
 }
 
 #if compiler(>=6)
 extension Coordinates: Sendable {}
 #endif
-
-
-extension Coordinates: Equatable, Hashable {
-    public static func ==(lhs: Coordinates, rhs: Coordinates) -> Bool {
-        if lhs.latitude != rhs.latitude {
-            return false
-        }
-        if lhs.longitude != rhs.longitude {
-            return false
-        }
-        return true
-    }
-
-    public func hash(into hasher: inout Hasher) {
-        hasher.combine(latitude)
-        hasher.combine(longitude)
-    }
-}
-
-
 
 #if swift(>=5.8)
 @_documentation(visibility: private)
@@ -693,12 +691,16 @@ public func FfiConverterTypeCoordinates_lower(_ value: Coordinates) -> RustBuffe
 // Note that we don't yet support `indirect` for enums.
 // See https://github.com/mozilla/uniffi-rs/issues/396 for further discussion.
 
-public enum Mazhab {
+public enum Mazhab: Equatable, Hashable {
     
     case shafi
     case hanafi
-}
 
+
+
+
+
+}
 
 #if compiler(>=6)
 extension Mazhab: Sendable {}
@@ -753,17 +755,10 @@ public func FfiConverterTypeMazhab_lower(_ value: Mazhab) -> RustBuffer {
 }
 
 
-extension Mazhab: Equatable, Hashable {}
-
-
-
-
-
-
 // Note that we don't yet support `indirect` for enums.
 // See https://github.com/mozilla/uniffi-rs/issues/396 for further discussion.
 
-public enum Method {
+public enum Method: Equatable, Hashable {
     
     case muslimWorldLeague
     case egyptian
@@ -771,8 +766,12 @@ public enum Method {
     case moonsightingCommittee
     case northAmerica
     case singapore
-}
 
+
+
+
+
+}
 
 #if compiler(>=6)
 extension Method: Sendable {}
@@ -851,17 +850,10 @@ public func FfiConverterTypeMethod_lower(_ value: Method) -> RustBuffer {
 }
 
 
-extension Method: Equatable, Hashable {}
-
-
-
-
-
-
 // Note that we don't yet support `indirect` for enums.
 // See https://github.com/mozilla/uniffi-rs/issues/396 for further discussion.
 
-public enum Prayer {
+public enum Prayer: Equatable, Hashable {
     
     case fajr
     case sunrise
@@ -870,8 +862,12 @@ public enum Prayer {
     case maghrib
     case ishaa
     case fajrTomorrow
-}
 
+
+
+
+
+}
 
 #if compiler(>=6)
 extension Prayer: Sendable {}
@@ -956,22 +952,19 @@ public func FfiConverterTypePrayer_lower(_ value: Prayer) -> RustBuffer {
 }
 
 
-extension Prayer: Equatable, Hashable {}
-
-
-
-
-
-
 // Note that we don't yet support `indirect` for enums.
 // See https://github.com/mozilla/uniffi-rs/issues/396 for further discussion.
 
-public enum Provider {
+public enum Provider: Equatable, Hashable {
     
     case darElFatwa(ProviderCity
     )
-}
 
+
+
+
+
+}
 
 #if compiler(>=6)
 extension Provider: Sendable {}
@@ -1022,21 +1015,18 @@ public func FfiConverterTypeProvider_lower(_ value: Provider) -> RustBuffer {
 }
 
 
-extension Provider: Equatable, Hashable {}
-
-
-
-
-
-
 // Note that we don't yet support `indirect` for enums.
 // See https://github.com/mozilla/uniffi-rs/issues/396 for further discussion.
 
-public enum ProviderCity {
+public enum ProviderCity: Equatable, Hashable {
     
     case beirut
-}
 
+
+
+
+
+}
 
 #if compiler(>=6)
 extension ProviderCity: Sendable {}
@@ -1085,13 +1075,6 @@ public func FfiConverterTypeProviderCity_lower(_ value: ProviderCity) -> RustBuf
 }
 
 
-extension ProviderCity: Equatable, Hashable {}
-
-
-
-
-
-
 private enum InitializationResult {
     case ok
     case contractVersionMismatch
@@ -1101,22 +1084,22 @@ private enum InitializationResult {
 // the code inside is only computed once.
 private let initializationResult: InitializationResult = {
     // Get the bindings contract version from our ComponentInterface
-    let bindings_contract_version = 29
+    let bindings_contract_version = 30
     // Get the scaffolding contract version by calling the into the dylib
     let scaffolding_contract_version = ffi_azan_uniffi_contract_version()
     if bindings_contract_version != scaffolding_contract_version {
         return InitializationResult.contractVersionMismatch
     }
-    if (uniffi_azan_checksum_method_prayertimes_current_prayer() != 20976) {
+    if (uniffi_azan_checksum_method_prayertimes_current_prayer() != 52820) {
         return InitializationResult.apiChecksumMismatch
     }
-    if (uniffi_azan_checksum_method_prayertimes_next_prayer() != 44511) {
+    if (uniffi_azan_checksum_method_prayertimes_next_prayer() != 25858) {
         return InitializationResult.apiChecksumMismatch
     }
-    if (uniffi_azan_checksum_constructor_prayertimes_from_method() != 20727) {
+    if (uniffi_azan_checksum_constructor_prayertimes_from_method() != 56539) {
         return InitializationResult.apiChecksumMismatch
     }
-    if (uniffi_azan_checksum_constructor_prayertimes_from_precomputed() != 16680) {
+    if (uniffi_azan_checksum_constructor_prayertimes_from_precomputed() != 60825) {
         return InitializationResult.apiChecksumMismatch
     }
 
