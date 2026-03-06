@@ -19,8 +19,12 @@ pub struct PrayerTimes {
 #[uniffi::export]
 impl PrayerTimes {
     #[uniffi::constructor]
-    pub fn from_method(date_utc_timestamp: i64, coordinates: Coordinates, method: Method) -> Self {
-        let date = DateTime::from_timestamp_millis(date_utc_timestamp)
+    pub fn from_method(
+        date_utc_timestamp_secs: i64,
+        coordinates: Coordinates,
+        method: Method,
+    ) -> Self {
+        let date = DateTime::from_timestamp_secs(date_utc_timestamp_secs)
             .unwrap()
             .date_naive();
         let inner = azan::PrayerTimes::computed(date, coordinates, method.parameters());
@@ -28,8 +32,8 @@ impl PrayerTimes {
     }
 
     #[uniffi::constructor]
-    pub fn from_precomputed(date_utc_timestamp: i64, provider: Provider) -> Self {
-        let date = DateTime::from_timestamp_millis(date_utc_timestamp)
+    pub fn from_precomputed(date_utc_timestamp_secs: i64, provider: Provider) -> Self {
+        let date = DateTime::from_timestamp_secs(date_utc_timestamp_secs)
             .unwrap()
             .date_naive();
         let inner = azan::PrayerTimes::precomputed(date, provider);
@@ -76,13 +80,13 @@ impl PrayerTimes {
 impl PrayerTimes {
     fn from_inner(inner: azan::PrayerTimes) -> Self {
         PrayerTimes {
-            fajr: inner.time(Prayer::Fajr).timestamp_millis(),
-            sunrise: inner.time(Prayer::Sunrise).timestamp_millis(),
-            dhuhr: inner.time(Prayer::Dhuhr).timestamp_millis(),
-            asr: inner.time(Prayer::Asr).timestamp_millis(),
-            maghrib: inner.time(Prayer::Maghrib).timestamp_millis(),
-            ishaa: inner.time(Prayer::Ishaa).timestamp_millis(),
-            fajr_tomorrow: inner.time(Prayer::FajrTomorrow).timestamp_millis(),
+            fajr: inner.time(Prayer::Fajr).timestamp(),
+            sunrise: inner.time(Prayer::Sunrise).timestamp(),
+            dhuhr: inner.time(Prayer::Dhuhr).timestamp(),
+            asr: inner.time(Prayer::Asr).timestamp(),
+            maghrib: inner.time(Prayer::Maghrib).timestamp(),
+            ishaa: inner.time(Prayer::Ishaa).timestamp(),
+            fajr_tomorrow: inner.time(Prayer::FajrTomorrow).timestamp(),
             inner,
         }
     }

@@ -3,7 +3,7 @@ resolver = "3"
 members = ["azan_core", "azan_rslib", "uniffi-bindgen"]
 
 [workspace.package]
-version = "0.3.1"
+version = "0.3.2"
 authors = ["Hamza Jadid <hamza.jadid@ibad.org.lb>"]
 description = "A Rust native library for computing prayer times based on astronomical calculations"
 readme = "README.md"

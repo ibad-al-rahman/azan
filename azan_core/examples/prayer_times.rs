@@ -38,10 +38,7 @@ fn main() {
     let precomputed = PrayerTimes::precomputed(today, Provider::DarElFatwa(ProviderCity::Beirut));
 
     println!("\n=== Precomputed / Dar El-Fatwa (Beirut) ===");
-    println!(
-        "Fajr:    {}",
-        precomputed.time(Prayer::Fajr).format("%H:%M UTC")
-    );
+    println!("Fajr:    {}", precomputed.time(Prayer::Fajr).timestamp());
     println!(
         "Sunrise: {}",
         precomputed.time(Prayer::Sunrise).format("%H:%M UTC")

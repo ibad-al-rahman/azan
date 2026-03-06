@@ -564,20 +564,20 @@ open class PrayerTimes: PrayerTimesProtocol, @unchecked Sendable {
     }
 
     
-public static func fromMethod(dateUtcTimestamp: Int64, coordinates: Coordinates, method: Method) -> PrayerTimes  {
+public static func fromMethod(dateUtcTimestampSecs: Int64, coordinates: Coordinates, method: Method) -> PrayerTimes  {
     return try!  FfiConverterTypePrayerTimes_lift(try! rustCall() {
     uniffi_azan_fn_constructor_prayertimes_from_method(
-        FfiConverterInt64.lower(dateUtcTimestamp),
+        FfiConverterInt64.lower(dateUtcTimestampSecs),
         FfiConverterTypeCoordinates_lower(coordinates),
         FfiConverterTypeMethod_lower(method),$0
     )
 })
 }
     
-public static func fromPrecomputed(dateUtcTimestamp: Int64, provider: Provider) -> PrayerTimes  {
+public static func fromPrecomputed(dateUtcTimestampSecs: Int64, provider: Provider) -> PrayerTimes  {
     return try!  FfiConverterTypePrayerTimes_lift(try! rustCall() {
     uniffi_azan_fn_constructor_prayertimes_from_precomputed(
-        FfiConverterInt64.lower(dateUtcTimestamp),
+        FfiConverterInt64.lower(dateUtcTimestampSecs),
         FfiConverterTypeProvider_lower(provider),$0
     )
 })
@@ -1187,10 +1187,10 @@ private let initializationResult: InitializationResult = {
     if (uniffi_azan_checksum_method_prayertimes_sunrise() != 31810) {
         return InitializationResult.apiChecksumMismatch
     }
-    if (uniffi_azan_checksum_constructor_prayertimes_from_method() != 56539) {
+    if (uniffi_azan_checksum_constructor_prayertimes_from_method() != 64311) {
         return InitializationResult.apiChecksumMismatch
     }
-    if (uniffi_azan_checksum_constructor_prayertimes_from_precomputed() != 60825) {
+    if (uniffi_azan_checksum_constructor_prayertimes_from_precomputed() != 13313) {
         return InitializationResult.apiChecksumMismatch
     }
 
