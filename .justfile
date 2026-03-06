@@ -77,9 +77,7 @@ apple-gh-release release="":
 	@if [ "{{release}}" = "-r" ]; then \
 		echo "Committing changes to Package.swift and tagging the release"; \
 		sed -i "" -E "s/(let useLocalFramework = )true/\1false/g" ./Package.swift; \
-		git add ./Package.swift; \
-		git add ./azan_rslib/Cargo.toml; \
-		git add ./Cargo.lock; \
+		git add -A; \
 		git commit -m "Update Package.swift for {{VERSION}} release"; \
 		git tag -a {{VERSION}} -m "{{VERSION}}"; \
 		git push origin HEAD --tags; \
