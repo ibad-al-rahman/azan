@@ -494,9 +494,23 @@ fileprivate struct FfiConverterString: FfiConverter {
 
 public protocol PrayerTimesProtocol: AnyObject, Sendable {
     
+    func asr()  -> Int64
+    
     func currentPrayer()  -> Prayer
     
+    func dhuhr()  -> Int64
+    
+    func fajr()  -> Int64
+    
+    func fajrTomorrow()  -> Int64
+    
+    func ishaa()  -> Int64
+    
+    func maghrib()  -> Int64
+    
     func nextPrayer()  -> Prayer
+    
+    func sunrise()  -> Int64
     
 }
 open class PrayerTimes: PrayerTimesProtocol, @unchecked Sendable {
@@ -571,6 +585,14 @@ public static func fromPrecomputed(dateUtcTimestamp: Int64, provider: Provider) 
     
 
     
+open func asr() -> Int64  {
+    return try!  FfiConverterInt64.lift(try! rustCall() {
+    uniffi_azan_fn_method_prayertimes_asr(
+            self.uniffiCloneHandle(),$0
+    )
+})
+}
+    
 open func currentPrayer() -> Prayer  {
     return try!  FfiConverterTypePrayer_lift(try! rustCall() {
     uniffi_azan_fn_method_prayertimes_current_prayer(
@@ -579,9 +601,57 @@ open func currentPrayer() -> Prayer  {
 })
 }
     
+open func dhuhr() -> Int64  {
+    return try!  FfiConverterInt64.lift(try! rustCall() {
+    uniffi_azan_fn_method_prayertimes_dhuhr(
+            self.uniffiCloneHandle(),$0
+    )
+})
+}
+    
+open func fajr() -> Int64  {
+    return try!  FfiConverterInt64.lift(try! rustCall() {
+    uniffi_azan_fn_method_prayertimes_fajr(
+            self.uniffiCloneHandle(),$0
+    )
+})
+}
+    
+open func fajrTomorrow() -> Int64  {
+    return try!  FfiConverterInt64.lift(try! rustCall() {
+    uniffi_azan_fn_method_prayertimes_fajr_tomorrow(
+            self.uniffiCloneHandle(),$0
+    )
+})
+}
+    
+open func ishaa() -> Int64  {
+    return try!  FfiConverterInt64.lift(try! rustCall() {
+    uniffi_azan_fn_method_prayertimes_ishaa(
+            self.uniffiCloneHandle(),$0
+    )
+})
+}
+    
+open func maghrib() -> Int64  {
+    return try!  FfiConverterInt64.lift(try! rustCall() {
+    uniffi_azan_fn_method_prayertimes_maghrib(
+            self.uniffiCloneHandle(),$0
+    )
+})
+}
+    
 open func nextPrayer() -> Prayer  {
     return try!  FfiConverterTypePrayer_lift(try! rustCall() {
     uniffi_azan_fn_method_prayertimes_next_prayer(
+            self.uniffiCloneHandle(),$0
+    )
+})
+}
+    
+open func sunrise() -> Int64  {
+    return try!  FfiConverterInt64.lift(try! rustCall() {
+    uniffi_azan_fn_method_prayertimes_sunrise(
             self.uniffiCloneHandle(),$0
     )
 })
@@ -1090,10 +1160,31 @@ private let initializationResult: InitializationResult = {
     if bindings_contract_version != scaffolding_contract_version {
         return InitializationResult.contractVersionMismatch
     }
+    if (uniffi_azan_checksum_method_prayertimes_asr() != 62727) {
+        return InitializationResult.apiChecksumMismatch
+    }
     if (uniffi_azan_checksum_method_prayertimes_current_prayer() != 52820) {
         return InitializationResult.apiChecksumMismatch
     }
+    if (uniffi_azan_checksum_method_prayertimes_dhuhr() != 47040) {
+        return InitializationResult.apiChecksumMismatch
+    }
+    if (uniffi_azan_checksum_method_prayertimes_fajr() != 59517) {
+        return InitializationResult.apiChecksumMismatch
+    }
+    if (uniffi_azan_checksum_method_prayertimes_fajr_tomorrow() != 957) {
+        return InitializationResult.apiChecksumMismatch
+    }
+    if (uniffi_azan_checksum_method_prayertimes_ishaa() != 5141) {
+        return InitializationResult.apiChecksumMismatch
+    }
+    if (uniffi_azan_checksum_method_prayertimes_maghrib() != 18499) {
+        return InitializationResult.apiChecksumMismatch
+    }
     if (uniffi_azan_checksum_method_prayertimes_next_prayer() != 25858) {
+        return InitializationResult.apiChecksumMismatch
+    }
+    if (uniffi_azan_checksum_method_prayertimes_sunrise() != 31810) {
         return InitializationResult.apiChecksumMismatch
     }
     if (uniffi_azan_checksum_constructor_prayertimes_from_method() != 56539) {

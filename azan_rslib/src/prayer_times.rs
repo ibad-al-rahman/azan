@@ -6,13 +6,13 @@ use chrono::DateTime;
 
 #[derive(uniffi::Object)]
 pub struct PrayerTimes {
-    pub fajr: i64,
-    pub sunrise: i64,
-    pub dhuhr: i64,
-    pub asr: i64,
-    pub maghrib: i64,
-    pub ishaa: i64,
-    pub fajr_tomorrow: i64,
+    fajr: i64,
+    sunrise: i64,
+    dhuhr: i64,
+    asr: i64,
+    maghrib: i64,
+    ishaa: i64,
+    fajr_tomorrow: i64,
     inner: azan::PrayerTimes,
 }
 
@@ -34,6 +34,34 @@ impl PrayerTimes {
             .date_naive();
         let inner = azan::PrayerTimes::precomputed(date, provider);
         Self::from_inner(inner)
+    }
+
+    pub fn fajr(&self) -> i64 {
+        self.fajr
+    }
+
+    pub fn sunrise(&self) -> i64 {
+        self.sunrise
+    }
+
+    pub fn dhuhr(&self) -> i64 {
+        self.dhuhr
+    }
+
+    pub fn asr(&self) -> i64 {
+        self.asr
+    }
+
+    pub fn maghrib(&self) -> i64 {
+        self.maghrib
+    }
+
+    pub fn ishaa(&self) -> i64 {
+        self.ishaa
+    }
+
+    pub fn fajr_tomorrow(&self) -> i64 {
+        self.fajr_tomorrow
     }
 
     pub fn current_prayer(&self) -> Prayer {
