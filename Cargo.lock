@@ -73,7 +73,7 @@ checksum = "c08606f8c3cbf4ce6ec8e28fb0014a2c086708fe954eaa885384a6165172e7e8"
 
 [[package]]
 name = "azan"
-version = "0.2.0"
+version = "0.3.0"
 dependencies = [
  "chrono",
  "spectral",
@@ -81,7 +81,7 @@ dependencies = [
 
 [[package]]
 name = "azan_rslib"
-version = "0.2.0"
+version = "0.3.0"
 dependencies = [
  "azan",
  "chrono",
@@ -811,7 +811,7 @@ dependencies = [
 
 [[package]]
 name = "uniffi-bindgen"
-version = "0.2.0"
+version = "0.3.0"
 dependencies = [
  "uniffi",
 ]
