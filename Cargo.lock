@@ -72,24 +72,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "c08606f8c3cbf4ce6ec8e28fb0014a2c086708fe954eaa885384a6165172e7e8"
 
 [[package]]
-name = "azan"
-version = "0.3.2"
-dependencies = [
- "calendrical_calculations",
- "chrono",
- "spectral",
-]
-
-[[package]]
-name = "azan_rslib"
-version = "0.3.2"
-dependencies = [
- "azan",
- "chrono",
- "uniffi",
-]
-
-[[package]]
 name = "basic-toml"
 version = "0.1.10"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -415,6 +397,24 @@ name = "minimal-lexical"
 version = "0.2.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "68354c5c6bd36d73ff3feceb05efa59b6acb7626617f4962be322a825e61f79a"
+
+[[package]]
+name = "miqat"
+version = "0.3.2"
+dependencies = [
+ "calendrical_calculations",
+ "chrono",
+ "spectral",
+]
+
+[[package]]
+name = "miqat_rslib"
+version = "0.3.2"
+dependencies = [
+ "chrono",
+ "miqat",
+ "uniffi",
+]
 
 [[package]]
 name = "nom"

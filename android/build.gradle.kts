@@ -15,7 +15,7 @@ subprojects {
         repositories {
             maven {
                 name = "GitHubPackages"
-                url = uri("https://maven.pkg.github.com/ibad-al-rahman/azan")
+                url = uri("https://maven.pkg.github.com/ibad-al-rahman/miqat")
                 credentials {
                     val properties = gradleLocalProperties(rootDir)
                     username = properties.getProperty("gpr.user") ?: System.getenv("GITHUB_USERNAME")

@@ -20,5 +20,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "Azan"
-include(":azan")
+rootProject.name = "Miqat"
+include(":miqat")

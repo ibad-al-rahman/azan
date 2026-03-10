@@ -1,4 +1,4 @@
-# Azan
+# Miqat
 
 A Rust native library for computing prayer times based on astronomical calculations
 

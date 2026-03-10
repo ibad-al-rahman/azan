@@ -1,0 +1,10 @@
+[bindings.kotlin]
+android = true
+cdylib_name = "miqat"
+generate_immutable_records = true
+package_name = "org.ibadalrahman.miqat"
+
+[bindings.swift]
+ffi_module_name = "MiqatFFI"
+generate_immutable_records = true
+module_name = "MiqatBindings"
