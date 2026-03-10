@@ -1,9 +1,9 @@
 
 FAT_SIMULATOR_LIB_DIR := "target" / "ios-simulator-fat" / "release"
-LIBNAME := "azan"
-MODULENAME := "Azan"
+LIBNAME := "miqat"
+MODULENAME := "Miqat"
 
-VERSION := `cargo metadata --format-version 1 | jq -r '.packages[] | select(.name=="azan_rslib") .version'`
+VERSION := `cargo metadata --format-version 1 | jq -r '.packages[] | select(.name=="miqat_rslib") .version'`
 SHORTCOMMIT := `git rev-parse --short HEAD`
 
 LATEST_TAG := `git tag --sort=-version:refname | head -n 1 2>/dev/null || echo "0.0.0"`
@@ -48,8 +48,8 @@ apple-generate-ffi:
 		--library target/aarch64-apple-ios/release/lib{{LIBNAME}}.dylib \
 		--language swift \
 		--out-dir target/uniffi-xcframework-staging
-	@mkdir -p ./apple/Sources/Azan/
-	@mv target/uniffi-xcframework-staging/*.swift ./apple/Sources/Azan/
+	@mkdir -p ./apple/Sources/Miqat/
+	@mv target/uniffi-xcframework-staging/*.swift ./apple/Sources/Miqat/
 	@mv target/uniffi-xcframework-staging/{{MODULENAME}}FFI.modulemap target/uniffi-xcframework-staging/module.modulemap
 
 # Generate XCFramework that includes the static libs for apple platforms. When passing `-r` it will compute the zip checksum and modify the Package.swift accordingly
@@ -120,16 +120,16 @@ android-build release="":
 clean-all: apple-clean android-clean
 	@cargo clean
 
-# Updates the version inside azan_rslib/Cargo.toml and Package.swift
+# Updates the version inside miqat_rslib/Cargo.toml and Package.swift
 [group: 'utils']
 [no-exit-message]
 update-versions version:
-	@echo "Updating azan versions (rslib and Package.swift) to {{version}}"
+	@echo "Updating miqat versions (rslib and Package.swift) to {{version}}"
 
-	@sed -i.bak 's/^version = ".*"/version = "'{{version}}'"/' azan_rslib/Cargo.toml && rm azan_rslib/Cargo.toml.bak
+	@sed -i.bak 's/^version = ".*"/version = "'{{version}}'"/' miqat_rslib/Cargo.toml && rm miqat_rslib/Cargo.toml.bak
 	@sed -i.bak 's/^let releaseTag = ".*"/let releaseTag = "'{{version}}'"/' Package.swift && rm Package.swift.bak
 
-	@echo "✓ Updated all azan versions to {{version}}"
+	@echo "✓ Updated all miqat versions to {{version}}"
 
 # Validate version is semantic version and higher than latest tag
 [group: 'utils']

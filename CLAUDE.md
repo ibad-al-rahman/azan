@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Azan is a Rust-based Islamic prayer time calculation library. It computes prayer times (Fajr, Sunrise, Dhuhr, Asr, Maghrib, Ishaa, Qiyam) using high-precision astronomical equations from Jean Meeus's "Astronomical Algorithms". It targets iOS, macOS, and Android via auto-generated bindings using UniFFI.
+Miqat is a Rust-based Islamic prayer time calculation library. It computes prayer times (Fajr, Sunrise, Dhuhr, Asr, Maghrib, Ishaa, Qiyam) using high-precision astronomical equations from Jean Meeus's "Astronomical Algorithms". It targets iOS, macOS, and Android via auto-generated bindings using UniFFI.
 
 ## Commands
 
@@ -45,15 +45,15 @@ just update-versions X.Y.Z    # Update version across all manifests
 
 The project is a Rust workspace with three layers:
 
-### 1. `azan_core` — Pure Rust calculation library
+### 1. `miqat_core` — Pure Rust calculation library
 
 - `astronomy/` — Solar coordinates, astronomical operations (Meeus equations), Qiblah
 - `models/` — Configuration types: `Method` (6 regional presets), `Mazhab` (Hanafi/Shafi), `Parameters`, `Prayer` enum, high-latitude rules, rounding, adjustments
 - `prayer_times.rs` — Main `PrayerTimes` struct; calculates all prayer times, current/next prayer, and time remaining
 
-### 2. `azan_rslib` — FFI wrapper
+### 2. `miqat_rslib` — FFI wrapper
 
-Wraps `azan_core` using UniFFI to expose a cross-platform API. Outputs times as millisecond timestamps (`i64`). Built as `cdylib`, `staticlib`, and `lib`.
+Wraps `miqat_core` using UniFFI to expose a cross-platform API. Outputs times as millisecond timestamps (`i64`). Built as `cdylib`, `staticlib`, and `lib`.
 
 ### 3. `uniffi-bindgen` — Binding generator
 
@@ -61,9 +61,9 @@ Thin binary wrapping `uniffi_bindgen_main()` that auto-generates Swift and Kotli
 
 ### Platform outputs
 
-- **iOS/macOS**: Auto-generated `apple/Sources/Azan/AzanBindings.swift` + XCFramework, consumed via Swift Package Manager (`Package.swift`), requires iOS 13+
-- **Android**: Auto-generated `android/azan/src/main/java/org/ibadalrahman/azan/azan.kt` + AAR via Gradle with JNA
+- **iOS/macOS**: Auto-generated `apple/Sources/Miqat/MiqatBindings.swift` + XCFramework, consumed via Swift Package Manager (`Package.swift`), requires iOS 13+
+- **Android**: Auto-generated `android/miqat/src/main/java/org/ibadalrahman/miqat/miqat.kt` + AAR via Gradle with JNA
 
 ### Binding generation pattern
 
-Adding or changing public API in `azan_rslib` requires re-running `just apple-generate-ffi` (and the Android equivalent) to regenerate the platform binding files. The generated files (`AzanBindings.swift`, `azan.kt`) are committed to the repo and should not be hand-edited.
+Adding or changing public API in `miqat_rslib` requires re-running `just apple-generate-ffi` (and the Android equivalent) to regenerate the platform binding files. The generated files (`MiqatBindings.swift`, `miqat.kt`) are committed to the repo and should not be hand-edited.

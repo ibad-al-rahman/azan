@@ -1,0 +1,18 @@
+[package]
+name = "miqat"
+version.workspace = true
+authors = [
+    "Farhan Ahmed <farhan@themacronaut.com>",
+    "Hamza Jadid <hamza.jadid@ibad.org.lb>",
+]
+edition.workspace = true
+description.workspace = true
+readme.workspace = true
+license.workspace = true
+
+[dependencies]
+calendrical_calculations = "0.2.3"
+chrono.workspace = true
+
+[dev-dependencies]
+spectral = "0.6.0"

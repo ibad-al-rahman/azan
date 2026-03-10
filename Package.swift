@@ -10,29 +10,29 @@ let releaseChecksum = "29c4b57bbdaf485c609b8cdb9e5a1163171ad062c9b1602277cca058f
 
 let binaryTarget: Target = if useLocalFramework {
     .binaryTarget(
-        name: "AzanFFI",
-        path: "./target/ios/libazan-rs.xcframework"
+        name: "MiqatFFI",
+        path: "./target/ios/libmiqat-rs.xcframework"
     )
 } else {
     .binaryTarget(
-        name: "AzanFFI",
-        url: "https://github.com/ibad-al-rahman/azan/releases/download/\(releaseTag)/libazan-rs.xcframework.zip",
+        name: "MiqatFFI",
+        url: "https://github.com/ibad-al-rahman/miqat/releases/download/\(releaseTag)/libmiqat-rs.xcframework.zip",
         checksum: releaseChecksum
     )
 }
 
 let package = Package(
-    name: "Azan",
+    name: "Miqat",
     platforms: [.iOS(.v13)],
     products: [
-        .library(name: "Azan", targets: ["Azan"]),
+        .library(name: "Miqat", targets: ["Miqat"]),
     ],
     targets: [
         binaryTarget,
         .target(
-            name: "Azan",
-            dependencies: [.target(name: "AzanFFI")],
-            path: "apple/Sources/Azan",
+            name: "Miqat",
+            dependencies: [.target(name: "MiqatFFI")],
+            path: "apple/Sources/Miqat",
             resources: [
                 .process("Resources/PrivacyInfo.xcprivacy")
             ]
