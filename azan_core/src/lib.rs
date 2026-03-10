@@ -18,12 +18,15 @@
 //! ```
 
 mod astronomy;
+pub mod hijri;
 mod models;
 mod prayer_times;
 pub mod precomputed;
 
 pub use crate::astronomy::unit::Coordinates;
 pub use crate::astronomy::unit::Stride;
+pub use crate::hijri::HijriDate;
+pub use crate::hijri::HijriEvent;
 pub use crate::models::adjustments::TimeAdjustment;
 pub use crate::models::mazhab::Mazhab;
 pub use crate::models::method::Method;
@@ -46,6 +49,10 @@ pub mod prelude {
     pub use crate::astronomy::qiblah::Qiblah;
     #[doc(no_inline)]
     pub use crate::astronomy::unit::{Coordinates, Stride};
+    #[doc(no_inline)]
+    pub use crate::hijri::HijriDate;
+    #[doc(no_inline)]
+    pub use crate::hijri::HijriEvent;
     #[doc(no_inline)]
     pub use crate::models::adjustments::TimeAdjustment;
     #[doc(no_inline)]

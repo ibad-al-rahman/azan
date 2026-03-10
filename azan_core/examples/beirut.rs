@@ -4,8 +4,12 @@ fn main() {
     println!("Prayer times for Beirut in UTC");
     println!("------------------------------");
     println!();
-    let makka = Coordinates::new(33.888630, 35.495480);
+
     let date = Utc::now().date_naive();
+    let hijri = HijriDate::from_gregorian(date);
+    println!("Hijri date: {hijri}");
+    println!();
+    let makka = Coordinates::new(33.888630, 35.495480);
     let params = Method::Egyptian.parameters();
     let prayer_times = PrayerTimes::computed(date, makka, params);
 
