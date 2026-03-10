@@ -419,6 +419,38 @@ fileprivate final class UniffiHandleMap<T>: @unchecked Sendable {
 #if swift(>=5.8)
 @_documentation(visibility: private)
 #endif
+fileprivate struct FfiConverterUInt8: FfiConverterPrimitive {
+    typealias FfiType = UInt8
+    typealias SwiftType = UInt8
+
+    public static func read(from buf: inout (data: Data, offset: Data.Index)) throws -> UInt8 {
+        return try lift(readInt(&buf))
+    }
+
+    public static func write(_ value: UInt8, into buf: inout [UInt8]) {
+        writeInt(&buf, lower(value))
+    }
+}
+
+#if swift(>=5.8)
+@_documentation(visibility: private)
+#endif
+fileprivate struct FfiConverterInt32: FfiConverterPrimitive {
+    typealias FfiType = Int32
+    typealias SwiftType = Int32
+
+    public static func read(from buf: inout (data: Data, offset: Data.Index)) throws -> Int32 {
+        return try lift(readInt(&buf))
+    }
+
+    public static func write(_ value: Int32, into buf: inout [UInt8]) {
+        writeInt(&buf, lower(value))
+    }
+}
+
+#if swift(>=5.8)
+@_documentation(visibility: private)
+#endif
 fileprivate struct FfiConverterInt64: FfiConverterPrimitive {
     typealias FfiType = Int64
     typealias SwiftType = Int64
@@ -503,6 +535,8 @@ public protocol PrayerTimesProtocol: AnyObject, Sendable {
     func fajr()  -> Int64
     
     func fajrTomorrow()  -> Int64
+    
+    func hijriDate()  -> HijriDate
     
     func ishaa()  -> Int64
     
@@ -620,6 +654,14 @@ open func fajr() -> Int64  {
 open func fajrTomorrow() -> Int64  {
     return try!  FfiConverterInt64.lift(try! rustCall() {
     uniffi_miqat_fn_method_prayertimes_fajr_tomorrow(
+            self.uniffiCloneHandle(),$0
+    )
+})
+}
+    
+open func hijriDate() -> HijriDate  {
+    return try!  FfiConverterTypeHijriDate_lift(try! rustCall() {
+    uniffi_miqat_fn_method_prayertimes_hijri_date(
             self.uniffiCloneHandle(),$0
     )
 })
@@ -757,6 +799,187 @@ public func FfiConverterTypeCoordinates_lift(_ buf: RustBuffer) throws -> Coordi
 public func FfiConverterTypeCoordinates_lower(_ value: Coordinates) -> RustBuffer {
     return FfiConverterTypeCoordinates.lower(value)
 }
+
+
+public struct HijriDate: Equatable, Hashable {
+    public let year: Int32
+    public let month: UInt8
+    public let day: UInt8
+
+    // Default memberwise initializers are never public by default, so we
+    // declare one manually.
+    public init(year: Int32, month: UInt8, day: UInt8) {
+        self.year = year
+        self.month = month
+        self.day = day
+    }
+
+    
+
+    
+}
+
+#if compiler(>=6)
+extension HijriDate: Sendable {}
+#endif
+
+#if swift(>=5.8)
+@_documentation(visibility: private)
+#endif
+public struct FfiConverterTypeHijriDate: FfiConverterRustBuffer {
+    public static func read(from buf: inout (data: Data, offset: Data.Index)) throws -> HijriDate {
+        return
+            try HijriDate(
+                year: FfiConverterInt32.read(from: &buf), 
+                month: FfiConverterUInt8.read(from: &buf), 
+                day: FfiConverterUInt8.read(from: &buf)
+        )
+    }
+
+    public static func write(_ value: HijriDate, into buf: inout [UInt8]) {
+        FfiConverterInt32.write(value.year, into: &buf)
+        FfiConverterUInt8.write(value.month, into: &buf)
+        FfiConverterUInt8.write(value.day, into: &buf)
+    }
+}
+
+
+#if swift(>=5.8)
+@_documentation(visibility: private)
+#endif
+public func FfiConverterTypeHijriDate_lift(_ buf: RustBuffer) throws -> HijriDate {
+    return try FfiConverterTypeHijriDate.lift(buf)
+}
+
+#if swift(>=5.8)
+@_documentation(visibility: private)
+#endif
+public func FfiConverterTypeHijriDate_lower(_ value: HijriDate) -> RustBuffer {
+    return FfiConverterTypeHijriDate.lower(value)
+}
+
+// Note that we don't yet support `indirect` for enums.
+// See https://github.com/mozilla/uniffi-rs/issues/396 for further discussion.
+
+public enum HijriEvent: Equatable, Hashable {
+    
+    case islamicNewYear
+    case ashura
+    case mawlidAlNabi
+    case israAndMiraj
+    case nisfShaban
+    case firstOfRamadan
+    case laylatAlQadr
+    case eidAlFitr
+    case dayOfArafah
+    case eidAlAdha
+
+
+
+
+
+}
+
+#if compiler(>=6)
+extension HijriEvent: Sendable {}
+#endif
+
+#if swift(>=5.8)
+@_documentation(visibility: private)
+#endif
+public struct FfiConverterTypeHijriEvent: FfiConverterRustBuffer {
+    typealias SwiftType = HijriEvent
+
+    public static func read(from buf: inout (data: Data, offset: Data.Index)) throws -> HijriEvent {
+        let variant: Int32 = try readInt(&buf)
+        switch variant {
+        
+        case 1: return .islamicNewYear
+        
+        case 2: return .ashura
+        
+        case 3: return .mawlidAlNabi
+        
+        case 4: return .israAndMiraj
+        
+        case 5: return .nisfShaban
+        
+        case 6: return .firstOfRamadan
+        
+        case 7: return .laylatAlQadr
+        
+        case 8: return .eidAlFitr
+        
+        case 9: return .dayOfArafah
+        
+        case 10: return .eidAlAdha
+        
+        default: throw UniffiInternalError.unexpectedEnumCase
+        }
+    }
+
+    public static func write(_ value: HijriEvent, into buf: inout [UInt8]) {
+        switch value {
+        
+        
+        case .islamicNewYear:
+            writeInt(&buf, Int32(1))
+        
+        
+        case .ashura:
+            writeInt(&buf, Int32(2))
+        
+        
+        case .mawlidAlNabi:
+            writeInt(&buf, Int32(3))
+        
+        
+        case .israAndMiraj:
+            writeInt(&buf, Int32(4))
+        
+        
+        case .nisfShaban:
+            writeInt(&buf, Int32(5))
+        
+        
+        case .firstOfRamadan:
+            writeInt(&buf, Int32(6))
+        
+        
+        case .laylatAlQadr:
+            writeInt(&buf, Int32(7))
+        
+        
+        case .eidAlFitr:
+            writeInt(&buf, Int32(8))
+        
+        
+        case .dayOfArafah:
+            writeInt(&buf, Int32(9))
+        
+        
+        case .eidAlAdha:
+            writeInt(&buf, Int32(10))
+        
+        }
+    }
+}
+
+
+#if swift(>=5.8)
+@_documentation(visibility: private)
+#endif
+public func FfiConverterTypeHijriEvent_lift(_ buf: RustBuffer) throws -> HijriEvent {
+    return try FfiConverterTypeHijriEvent.lift(buf)
+}
+
+#if swift(>=5.8)
+@_documentation(visibility: private)
+#endif
+public func FfiConverterTypeHijriEvent_lower(_ value: HijriEvent) -> RustBuffer {
+    return FfiConverterTypeHijriEvent.lower(value)
+}
+
 
 // Note that we don't yet support `indirect` for enums.
 // See https://github.com/mozilla/uniffi-rs/issues/396 for further discussion.
@@ -1145,6 +1368,45 @@ public func FfiConverterTypeProviderCity_lower(_ value: ProviderCity) -> RustBuf
 }
 
 
+#if swift(>=5.8)
+@_documentation(visibility: private)
+#endif
+fileprivate struct FfiConverterSequenceTypeHijriEvent: FfiConverterRustBuffer {
+    typealias SwiftType = [HijriEvent]
+
+    public static func write(_ value: [HijriEvent], into buf: inout [UInt8]) {
+        let len = Int32(value.count)
+        writeInt(&buf, len)
+        for item in value {
+            FfiConverterTypeHijriEvent.write(item, into: &buf)
+        }
+    }
+
+    public static func read(from buf: inout (data: Data, offset: Data.Index)) throws -> [HijriEvent] {
+        let len: Int32 = try readInt(&buf)
+        var seq = [HijriEvent]()
+        seq.reserveCapacity(Int(len))
+        for _ in 0 ..< len {
+            seq.append(try FfiConverterTypeHijriEvent.read(from: &buf))
+        }
+        return seq
+    }
+}
+public func hijriDateEvents(timestampSecs: Int64) -> [HijriEvent]  {
+    return try!  FfiConverterSequenceTypeHijriEvent.lift(try! rustCall() {
+    uniffi_miqat_fn_func_hijri_date_events(
+        FfiConverterInt64.lower(timestampSecs),$0
+    )
+})
+}
+public func hijriDateFromTimestamp(timestampSecs: Int64) -> HijriDate  {
+    return try!  FfiConverterTypeHijriDate_lift(try! rustCall() {
+    uniffi_miqat_fn_func_hijri_date_from_timestamp(
+        FfiConverterInt64.lower(timestampSecs),$0
+    )
+})
+}
+
 private enum InitializationResult {
     case ok
     case contractVersionMismatch
@@ -1160,6 +1422,12 @@ private let initializationResult: InitializationResult = {
     if bindings_contract_version != scaffolding_contract_version {
         return InitializationResult.contractVersionMismatch
     }
+    if (uniffi_miqat_checksum_func_hijri_date_events() != 17695) {
+        return InitializationResult.apiChecksumMismatch
+    }
+    if (uniffi_miqat_checksum_func_hijri_date_from_timestamp() != 48396) {
+        return InitializationResult.apiChecksumMismatch
+    }
     if (uniffi_miqat_checksum_method_prayertimes_asr() != 64685) {
         return InitializationResult.apiChecksumMismatch
     }
@@ -1173,6 +1441,9 @@ private let initializationResult: InitializationResult = {
         return InitializationResult.apiChecksumMismatch
     }
     if (uniffi_miqat_checksum_method_prayertimes_fajr_tomorrow() != 47439) {
+        return InitializationResult.apiChecksumMismatch
+    }
+    if (uniffi_miqat_checksum_method_prayertimes_hijri_date() != 4994) {
         return InitializationResult.apiChecksumMismatch
     }
     if (uniffi_miqat_checksum_method_prayertimes_ishaa() != 11283) {

@@ -26,7 +26,7 @@ pub enum HijriEvent {
 }
 
 impl HijriEvent {
-    pub(crate) fn for_date(month: u8, day: u8) -> Vec<HijriEvent> {
+    pub fn for_date(month: u8, day: u8) -> Vec<HijriEvent> {
         EVENTS
             .iter()
             .filter(|(m, d, _)| *m == month && *d == day)
