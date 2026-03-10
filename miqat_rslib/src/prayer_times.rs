@@ -3,6 +3,7 @@ use miqat::Method;
 use miqat::Prayer;
 use miqat::Provider;
 use chrono::DateTime;
+use crate::hijri::HijriDate;
 
 #[derive(uniffi::Object)]
 pub struct PrayerTimes {
@@ -13,6 +14,7 @@ pub struct PrayerTimes {
     maghrib: i64,
     ishaa: i64,
     fajr_tomorrow: i64,
+    hijri_date: HijriDate,
     inner: miqat::PrayerTimes,
 }
 
@@ -28,7 +30,7 @@ impl PrayerTimes {
             .unwrap()
             .date_naive();
         let inner = miqat::PrayerTimes::computed(date, coordinates, method.parameters());
-        Self::from_inner(inner)
+        Self::from_inner(inner, date)
     }
 
     #[uniffi::constructor]
@@ -37,7 +39,7 @@ impl PrayerTimes {
             .unwrap()
             .date_naive();
         let inner = miqat::PrayerTimes::precomputed(date, provider);
-        Self::from_inner(inner)
+        Self::from_inner(inner, date)
     }
 
     pub fn fajr(&self) -> i64 {
@@ -75,10 +77,14 @@ impl PrayerTimes {
     pub fn next_prayer(&self) -> Prayer {
         self.inner.next()
     }
+
+    pub fn hijri_date(&self) -> HijriDate {
+        self.hijri_date
+    }
 }
 
 impl PrayerTimes {
-    fn from_inner(inner: miqat::PrayerTimes) -> Self {
+    fn from_inner(inner: miqat::PrayerTimes, date: chrono::NaiveDate) -> Self {
         PrayerTimes {
             fajr: inner.time(Prayer::Fajr).timestamp(),
             sunrise: inner.time(Prayer::Sunrise).timestamp(),
@@ -87,6 +93,7 @@ impl PrayerTimes {
             maghrib: inner.time(Prayer::Maghrib).timestamp(),
             ishaa: inner.time(Prayer::Ishaa).timestamp(),
             fajr_tomorrow: inner.time(Prayer::FajrTomorrow).timestamp(),
+            hijri_date: miqat::HijriDate::from_gregorian(date),
             inner,
         }
     }
