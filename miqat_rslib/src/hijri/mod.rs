@@ -32,18 +32,28 @@ pub struct HijriDate {
     pub day: u8,
 }
 
-#[uniffi::export]
-pub fn hijri_date_from_timestamp(timestamp_secs: i64) -> HijriDate {
-    let date = DateTime::from_timestamp_secs(timestamp_secs)
-        .unwrap()
-        .date_naive();
-    CoreHijriDate::from_gregorian(date)
+#[derive(uniffi::Object)]
+pub struct HijriDateInfo {
+    date: CoreHijriDate,
 }
 
 #[uniffi::export]
-pub fn hijri_date_events(timestamp_secs: i64) -> Vec<IslamicEvent> {
-    let date = DateTime::from_timestamp_secs(timestamp_secs)
-        .unwrap()
-        .date_naive();
-    CoreHijriDate::from_gregorian(date).events()
+impl HijriDateInfo {
+    #[uniffi::constructor]
+    pub fn from_timestamp(timestamp_secs: i64) -> Self {
+        let date = DateTime::from_timestamp_secs(timestamp_secs)
+            .unwrap()
+            .date_naive();
+        Self {
+            date: CoreHijriDate::from_gregorian(date),
+        }
+    }
+
+    pub fn date(&self) -> HijriDate {
+        self.date
+    }
+
+    pub fn events(&self) -> Vec<IslamicEvent> {
+        self.date.events()
+    }
 }

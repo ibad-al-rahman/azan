@@ -1,9 +1,9 @@
+use crate::hijri::HijriDate;
+use chrono::DateTime;
 use miqat::Coordinates;
 use miqat::Method;
 use miqat::Prayer;
 use miqat::Provider;
-use chrono::DateTime;
-use crate::hijri::HijriDate;
 
 #[derive(uniffi::Object)]
 pub struct PrayerTimes {
