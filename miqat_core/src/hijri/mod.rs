@@ -1,9 +1,14 @@
 pub mod events;
 
 use calendrical_calculations::gregorian::fixed_from_gregorian;
+use calendrical_calculations::gregorian::gregorian_from_fixed;
 use calendrical_calculations::islamic::ISLAMIC_EPOCH_FRIDAY;
+use calendrical_calculations::islamic::fixed_from_tabular_islamic;
 use calendrical_calculations::islamic::tabular_islamic_from_fixed;
-use chrono::{Datelike, NaiveDate};
+use chrono::DateTime;
+use chrono::Datelike;
+use chrono::NaiveDate;
+use chrono::Utc;
 use std::fmt;
 
 pub use events::IslamicEvent;
@@ -41,6 +46,15 @@ impl HijriDate {
         let fixed = fixed_from_gregorian(date.year() as i32, date.month() as u8, date.day() as u8);
         let (year, month, day) = tabular_islamic_from_fixed(fixed, ISLAMIC_EPOCH_FRIDAY);
         Self { year, month, day }
+    }
+
+    /// Converts this [`HijriDate`] back to a [`DateTime<Utc>`] at midnight UTC.
+    pub fn to_gregorian(&self) -> Option<DateTime<Utc>> {
+        let fixed =
+            fixed_from_tabular_islamic(self.year, self.month, self.day, ISLAMIC_EPOCH_FRIDAY);
+        let (y, m, d) = gregorian_from_fixed(fixed).ok()?;
+        NaiveDate::from_ymd_opt(y, m as u32, d as u32)
+            .map(|nd| nd.and_hms_opt(0, 0, 0).unwrap().and_utc())
     }
 
     /// Returns any Islamic holidays that fall on this date.
