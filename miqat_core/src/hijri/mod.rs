@@ -1,9 +1,8 @@
 pub mod events;
 
-use calendrical_calculations::{
-    gregorian::fixed_from_gregorian,
-    islamic::{ISLAMIC_EPOCH_FRIDAY, tabular_islamic_from_fixed},
-};
+use calendrical_calculations::gregorian::fixed_from_gregorian;
+use calendrical_calculations::islamic::ISLAMIC_EPOCH_FRIDAY;
+use calendrical_calculations::islamic::tabular_islamic_from_fixed;
 use chrono::{Datelike, NaiveDate};
 use std::fmt;
 
