@@ -26,7 +26,7 @@ pub mod precomputed;
 pub use crate::astronomy::unit::Coordinates;
 pub use crate::astronomy::unit::Stride;
 pub use crate::hijri::HijriDate;
-pub use crate::hijri::HijriEvent;
+pub use crate::hijri::IslamicEvent;
 pub use crate::models::adjustments::TimeAdjustment;
 pub use crate::models::mazhab::Mazhab;
 pub use crate::models::method::Method;
@@ -52,7 +52,7 @@ pub mod prelude {
     #[doc(no_inline)]
     pub use crate::hijri::HijriDate;
     #[doc(no_inline)]
-    pub use crate::hijri::HijriEvent;
+    pub use crate::hijri::IslamicEvent;
     #[doc(no_inline)]
     pub use crate::models::adjustments::TimeAdjustment;
     #[doc(no_inline)]
