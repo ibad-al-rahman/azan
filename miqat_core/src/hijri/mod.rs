@@ -2,12 +2,12 @@ pub mod events;
 
 use calendrical_calculations::{
     gregorian::fixed_from_gregorian,
-    islamic::{tabular_islamic_from_fixed, ISLAMIC_EPOCH_FRIDAY},
+    islamic::{ISLAMIC_EPOCH_FRIDAY, tabular_islamic_from_fixed},
 };
 use chrono::{Datelike, NaiveDate};
 use std::fmt;
 
-pub use events::HijriEvent;
+pub use events::IslamicEvent;
 
 /// A date in the Islamic (Hijri) calendar.
 ///
@@ -39,15 +39,14 @@ pub struct HijriDate {
 impl HijriDate {
     /// Converts a Gregorian [`NaiveDate`] to a [`HijriDate`].
     pub fn from_gregorian(date: NaiveDate) -> Self {
-        let fixed =
-            fixed_from_gregorian(date.year() as i32, date.month() as u8, date.day() as u8);
+        let fixed = fixed_from_gregorian(date.year() as i32, date.month() as u8, date.day() as u8);
         let (year, month, day) = tabular_islamic_from_fixed(fixed, ISLAMIC_EPOCH_FRIDAY);
         Self { year, month, day }
     }
 
     /// Returns any Islamic holidays that fall on this date.
-    pub fn events(&self) -> Vec<HijriEvent> {
-        HijriEvent::for_date(self.month, self.day)
+    pub fn events(&self) -> Vec<IslamicEvent> {
+        IslamicEvent::for_date(self.month, self.day)
     }
 }
 

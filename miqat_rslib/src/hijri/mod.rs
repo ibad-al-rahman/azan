@@ -1,18 +1,24 @@
 use chrono::DateTime;
 use miqat::HijriDate as CoreHijriDate;
 
-pub type HijriEvent = miqat::HijriEvent;
+pub type IslamicEvent = miqat::IslamicEvent;
 
 #[uniffi::remote(Enum)]
-pub enum HijriEvent {
+pub enum IslamicEvent {
     IslamicNewYear,
     Ashura,
     MawlidAlNabi,
+    BattleOfHattin,
+    BattleOfMutah,
+    BattleOfTabuk,
     IsraAndMiraj,
     NisfShaban,
     FirstOfRamadan,
+    BattleOfBadr,
+    ConquestOfMecca,
     LaylatAlQadr,
     EidAlFitr,
+    BattleOfUhud,
     DayOfArafah,
     EidAlAdha,
 }
@@ -35,7 +41,7 @@ pub fn hijri_date_from_timestamp(timestamp_secs: i64) -> HijriDate {
 }
 
 #[uniffi::export]
-pub fn hijri_date_events(timestamp_secs: i64) -> Vec<HijriEvent> {
+pub fn hijri_date_events(timestamp_secs: i64) -> Vec<IslamicEvent> {
     let date = DateTime::from_timestamp_secs(timestamp_secs)
         .unwrap()
         .date_naive();
