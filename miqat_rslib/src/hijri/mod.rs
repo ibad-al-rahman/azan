@@ -32,6 +32,28 @@ pub struct HijriDate {
     pub day: u8,
 }
 
+/// An occurrence of an Islamic event with its associated Hijri date and Gregorian timestamp.
+#[derive(uniffi::Record)]
+pub struct IslamicEventOccurrence {
+    pub event: IslamicEvent,
+    pub hijri_date: HijriDate,
+    pub gregorian_timestamp_secs: i64,
+}
+
+/// Returns all recurring Islamic event occurrences that fall within the given Gregorian year,
+/// sorted chronologically by Gregorian date.
+#[uniffi::export]
+pub fn events_for_gregorian_year(gregorian_year: i32) -> Vec<IslamicEventOccurrence> {
+    miqat::hijri::events::events_for_gregorian_year(gregorian_year)
+        .into_iter()
+        .map(|o| IslamicEventOccurrence {
+            event: o.event,
+            hijri_date: o.hijri_date,
+            gregorian_timestamp_secs: o.gregorian_date.timestamp(),
+        })
+        .collect()
+}
+
 #[derive(uniffi::Object)]
 pub struct HijriDateInfo {
     date: CoreHijriDate,
@@ -55,5 +77,11 @@ impl HijriDateInfo {
 
     pub fn events(&self) -> Vec<IslamicEvent> {
         self.date.events()
+    }
+
+    /// Converts this Hijri date back to a Unix timestamp (seconds) at midnight UTC,
+    /// or `None` if the date cannot be represented.
+    pub fn to_gregorian(&self) -> Option<i64> {
+        self.date.to_gregorian().map(|dt| dt.timestamp())
     }
 }
