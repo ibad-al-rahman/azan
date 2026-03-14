@@ -75,14 +75,14 @@ pub fn events_for_gregorian_year(gregorian_year: i32) -> Vec<IslamicEventOccurre
                 month,
                 day,
             };
-            if let Some(gregorian_date) = hijri_date.to_gregorian() {
-                if gregorian_date.year() == gregorian_year {
-                    occurrences.push(IslamicEventOccurrence {
-                        event,
-                        hijri_date,
-                        gregorian_date,
-                    });
-                }
+            if let Some(gregorian_date) = hijri_date.to_gregorian()
+                && gregorian_date.year() == gregorian_year
+            {
+                occurrences.push(IslamicEventOccurrence {
+                    event,
+                    hijri_date,
+                    gregorian_date,
+                });
             }
         }
     }
