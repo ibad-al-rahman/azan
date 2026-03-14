@@ -97,9 +97,9 @@ const EVENTS: &[(u8, u8, IslamicEvent)] = &[
     (1, 10, IslamicEvent::Ashura),
     (3, 12, IslamicEvent::MawlidAlNabi),
     (7, 27, IslamicEvent::IsraAndMiraj),
-    (8, 15, IslamicEvent::NisfShaban),
+    (8, 14, IslamicEvent::NisfShaban),
     (9, 1, IslamicEvent::FirstOfRamadan),
-    (9, 27, IslamicEvent::LaylatAlQadr),
+    (9, 26, IslamicEvent::LaylatAlQadr), /* 26 instead of 27 to accout for gregorian calendar users */
     (10, 1, IslamicEvent::EidAlFitr),
     (12, 9, IslamicEvent::DayOfArafah),
     (12, 10, IslamicEvent::EidAlAdha),
