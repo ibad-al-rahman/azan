@@ -65,7 +65,7 @@ impl HijriDate {
     /// println!("{}", hijri);
     /// ```
     pub fn from_gregorian_observational(date: NaiveDate, location: Location) -> Self {
-        let fixed = fixed_from_gregorian(date.year() as i32, date.month() as u8, date.day() as u8);
+        let fixed = fixed_from_gregorian(date.year(), date.month() as u8, date.day() as u8);
         let (year, month, day) = observational_islamic_from_fixed(fixed, location);
         Self { year, month, day }
     }
@@ -73,7 +73,7 @@ impl HijriDate {
     /// Converts a Gregorian [`NaiveDate`] to a [`HijriDate`] using the Saudi Islamic calendar,
     /// which is based on the astronomical criterion used in Saudi Arabia.
     pub fn from_gregorian(date: NaiveDate) -> Self {
-        let fixed = fixed_from_gregorian(date.year() as i32, date.month() as u8, date.day() as u8);
+        let fixed = fixed_from_gregorian(date.year(), date.month() as u8, date.day() as u8);
         let (year, month, day) = saudi_islamic_from_fixed(fixed);
         Self { year, month, day }
     }

@@ -1,4 +1,4 @@
-use calendrical_calculations::islamic::{Location, MECCA};
+use calendrical_calculations::islamic::MECCA;
 use miqat::prelude::*;
 
 fn main() {
