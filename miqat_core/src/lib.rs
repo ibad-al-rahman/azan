@@ -54,6 +54,8 @@ pub mod prelude {
     #[doc(no_inline)]
     pub use crate::hijri::IslamicEvent;
     #[doc(no_inline)]
+    pub use crate::hijri::events::{IslamicEventOccurrence, events_for_gregorian_year};
+    #[doc(no_inline)]
     pub use crate::models::adjustments::TimeAdjustment;
     #[doc(no_inline)]
     pub use crate::models::mazhab::Mazhab;
